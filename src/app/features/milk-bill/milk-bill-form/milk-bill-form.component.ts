@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { MilkBillService } from '../milk-bill.service';
 import { MilkBillDraft } from '../models/milk-bill.model';
 import { OcrService } from '../ocr.service';
+import { OllamaOcrService } from '../ollama-ocr.service';
 import { parseBillText } from '../utils/bill-text-parser';
 
 function todayIso(): string {
@@ -21,7 +22,10 @@ function todayIso(): string {
 export class MilkBillFormComponent {
   private readonly milkBillService = inject(MilkBillService);
   private readonly ocrService = inject(OcrService);
+  private readonly ollamaOcrService = inject(OllamaOcrService);
   private readonly router = inject(Router);
+
+  private selectedFile: File | null = null;
 
   imageDataUrl = signal<string | null>(null);
   billDate = signal<string>(todayIso());
@@ -67,6 +71,7 @@ export class MilkBillFormComponent {
 
     this.errorMessage.set(null);
     this.extractionMessage.set(null);
+    this.selectedFile = file;
 
     try {
       const dataUrl = await this.fileToDataUrl(file);
@@ -83,36 +88,7 @@ export class MilkBillFormComponent {
     this.isExtracting.set(true);
     try {
       const text = await this.ocrService.extractText(file);
-      const parsed = parseBillText(text);
-      const filled = new Set<'billDate' | 'quantityLiters' | 'ratePerLiter' | 'totalAmount' | 'vendorName'>();
-
-      if (parsed.billDate) {
-        this.billDate.set(parsed.billDate);
-        filled.add('billDate');
-      }
-      if (parsed.quantityLiters !== null) {
-        this.quantityLiters.set(parsed.quantityLiters);
-        filled.add('quantityLiters');
-      }
-      if (parsed.ratePerLiter !== null) {
-        this.ratePerLiter.set(parsed.ratePerLiter);
-        filled.add('ratePerLiter');
-      }
-      if (parsed.totalAmount !== null) {
-        this.totalAmountOverride.set(parsed.totalAmount);
-        filled.add('totalAmount');
-      }
-      if (parsed.vendorName && !this.vendorName()) {
-        this.vendorName.set(parsed.vendorName);
-        filled.add('vendorName');
-      }
-
-      this.autoFilledFields.set(filled);
-      this.extractionMessage.set(
-        filled.size > 0
-          ? 'Auto-filled from the image — please double-check before saving.'
-          : "Couldn't confidently read details from that image. Please fill the fields in manually."
-      );
+      this.applyParsedText(text);
     } catch {
       this.extractionMessage.set("Couldn't scan that image for text. Please fill the fields in manually.");
     } finally {
@@ -120,10 +96,62 @@ export class MilkBillFormComponent {
     }
   }
 
+  /** Re-runs extraction on the currently selected image via the server-side Ollama OCR API. */
+  async rescanWithOllama(): Promise<void> {
+    if (!this.selectedFile || this.isExtracting()) return;
+
+    this.isExtracting.set(true);
+    this.extractionMessage.set(null);
+    try {
+      const text = await this.ollamaOcrService.extractText(this.selectedFile);
+      this.applyParsedText(text);
+    } catch {
+      this.extractionMessage.set(
+        "Couldn't reach the Ollama OCR server (is it running at localhost:5257?). Please fill the fields in manually."
+      );
+    } finally {
+      this.isExtracting.set(false);
+    }
+  }
+
+  private applyParsedText(rawText: string): void {
+    const parsed = parseBillText(rawText);
+    const filled = new Set<'billDate' | 'quantityLiters' | 'ratePerLiter' | 'totalAmount' | 'vendorName'>();
+
+    if (parsed.billDate) {
+      this.billDate.set(parsed.billDate);
+      filled.add('billDate');
+    }
+    if (parsed.quantityLiters !== null) {
+      this.quantityLiters.set(parsed.quantityLiters);
+      filled.add('quantityLiters');
+    }
+    if (parsed.ratePerLiter !== null) {
+      this.ratePerLiter.set(parsed.ratePerLiter);
+      filled.add('ratePerLiter');
+    }
+    if (parsed.totalAmount !== null) {
+      this.totalAmountOverride.set(parsed.totalAmount);
+      filled.add('totalAmount');
+    }
+    if (parsed.vendorName && !this.vendorName()) {
+      this.vendorName.set(parsed.vendorName);
+      filled.add('vendorName');
+    }
+
+    this.autoFilledFields.set(filled);
+    this.extractionMessage.set(
+      filled.size > 0
+        ? 'Auto-filled from the image — please double-check before saving.'
+        : "Couldn't confidently read details from that image. Please fill the fields in manually."
+    );
+  }
+
   clearImage(): void {
     this.imageDataUrl.set(null);
     this.extractionMessage.set(null);
     this.autoFilledFields.set(new Set());
+    this.selectedFile = null;
   }
 
   updateBillDate(value: string): void {

@@ -5,6 +5,9 @@
     @if (imageDataUrl(); as src) {
     <img class="preview" [src]="src" alt="Captured milk bill" />
     <button type="button" class="secondary" (click)="clearImage()">Retake / Remove</button>
+    <button type="button" class="secondary" [disabled]="isExtracting()" (click)="rescanWithOllama()">
+      🤖 Re-scan with Ollama (server)
+    </button>
     @if (isExtracting()) {
     <p class="extracting">🔍 Reading details from the image…</p>
     } @else if (extractionMessage()) {
