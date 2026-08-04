@@ -1,5 +1,0 @@
-<Solution>
-  <Project Path="OcrOllama.Core/OcrOllama.Core.csproj" />
-  <Project Path="OcrOllamaApi/OcrOllamaApi.csproj" />
-  <Project Path="OcrOllamaConsole/OcrOllamaConsole.csproj" />
-</Solution>
