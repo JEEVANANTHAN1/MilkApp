@@ -1,0 +1,39 @@
+<div class="bill-list">
+  <header>
+    <h1>Milk bills</h1>
+    <a class="add-button" routerLink="/new">+ Log today's bill</a>
+  </header>
+
+  @if (milkBillService.isLoading()) {
+    <p class="empty">Loading…</p>
+  } @else if (milkBillService.allBills().length === 0) {
+    <p class="empty">No bills logged yet. Tap "Log today's bill" to add your first one.</p>
+  } @else {
+    <p class="total">Total spent: ₹{{ milkBillService.totalSpent().toFixed(2) }}</p>
+
+    <ul>
+      @for (bill of milkBillService.allBills(); track bill.id) {
+        <li class="bill-item" (click)="toggleExpand(bill.id)">
+          <img class="thumb" [src]="bill.imageDataUrl" alt="Bill from {{ bill.billDate }}" />
+          <div class="summary">
+            <strong>{{ bill.billDate }}</strong>
+            <span>{{ bill.quantityLiters }} L × ₹{{ bill.ratePerLiter }} = ₹{{ bill.totalAmount }}</span>
+            @if (bill.vendorName) {
+              <span class="vendor">{{ bill.vendorName }}</span>
+            }
+          </div>
+          <button class="delete-button" (click)="delete(bill.id, $event)" aria-label="Delete">✕</button>
+
+          @if (expandedId() === bill.id) {
+            <div class="expanded" (click)="$event.stopPropagation()">
+              <img class="full-image" [src]="bill.imageDataUrl" alt="Full bill image" />
+              @if (bill.notes) {
+                <p class="notes">{{ bill.notes }}</p>
+              }
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>

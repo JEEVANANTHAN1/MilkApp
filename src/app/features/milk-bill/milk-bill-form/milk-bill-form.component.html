@@ -1,0 +1,74 @@
+<div class="bill-form">
+  <h1>Log today's milk bill</h1>
+
+  <section class="image-capture">
+    @if (imageDataUrl(); as src) {
+    <img class="preview" [src]="src" alt="Captured milk bill" />
+    <button type="button" class="secondary" (click)="clearImage()">Retake / Remove</button>
+    @if (isExtracting()) {
+    <p class="extracting">🔍 Reading details from the image…</p>
+    } @else if (extractionMessage()) {
+    <p class="extraction-note">{{ extractionMessage() }}</p>
+    }
+    } @else {
+    <label class="capture-label">
+      <input type="file" accept="image/*" capture="environment" (change)="onImageSelected($event)" />
+      <span>📷 Scan / Upload bill photo</span>
+    </label>
+    }
+  </section>
+
+  <form class="fields" (ngSubmit)="save()">
+    <label>
+      Bill date
+      @if (isAutoFilled('billDate')) { <span class="detected">detected</span> }
+      <input type="date" [ngModel]="billDate()" (ngModelChange)="updateBillDate($event)" name="billDate" required />
+    </label>
+
+    <label>
+      Quantity (liters)
+      @if (isAutoFilled('quantityLiters')) { <span class="detected">detected</span> }
+      <input type="number" step="0.1" min="0" placeholder="e.g. 1.5" [ngModel]="quantityLiters()"
+        (ngModelChange)="updateQuantity($event)" name="quantityLiters" required />
+    </label>
+
+    <label>
+      Rate per liter (₹)
+      @if (isAutoFilled('ratePerLiter')) { <span class="detected">detected</span> }
+      <input type="number" step="0.01" min="0" placeholder="e.g. 62" [ngModel]="ratePerLiter()"
+        (ngModelChange)="updateRate($event)" name="ratePerLiter" required />
+    </label>
+
+    <label>
+      Total amount (₹)
+      @if (isAutoFilled('totalAmount')) { <span class="detected">detected</span> }
+      <input type="number" step="0.01" min="0"
+        [placeholder]="computedTotal() !== null ? computedTotal()!.toString() : 'Auto-calculated'"
+        [ngModel]="totalAmountOverride()" (ngModelChange)="onTotalOverrideChange($event)" name="totalAmount" />
+      @if (computedTotal() !== null && totalAmountOverride() === null) {
+      <small>Auto-calculated: ₹{{ computedTotal() }}</small>
+      }
+    </label>
+
+    <label>
+      Vendor name <span class="optional">(optional)</span>
+      @if (isAutoFilled('vendorName')) { <span class="detected">detected</span> }
+      <input type="text" placeholder="e.g. Aavin, local dairy" [ngModel]="vendorName()"
+        (ngModelChange)="updateVendorName($event)" name="vendorName" />
+    </label>
+
+    <label>
+      Notes <span class="optional">(optional)</span>
+      <textarea rows="2" placeholder="Anything worth remembering about this bill" [ngModel]="notes()"
+        (ngModelChange)="notes.set($event)" name="notes"></textarea>
+    </label>
+
+    @if (errorMessage(); as msg) {
+    <p class="error">{{ msg }}</p>
+    }
+
+    <button type="submit" class="primary" [disabled]="!canSave() || isSaving()">
+      {{ isSaving() ? 'Saving…' : 'Save bill' }}
+    </button>
+  </form>
+</div>
