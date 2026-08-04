@@ -5,14 +5,6 @@
     @if (imageDataUrl(); as src) {
     <img class="preview" [src]="src" alt="Captured milk bill" />
     <button type="button" class="secondary" (click)="clearImage()">Retake / Remove</button>
-    <button type="button" class="secondary" [disabled]="isExtracting()" (click)="rescanWithOllama()">
-      🤖 Re-scan with Ollama (server)
-    </button>
-    @if (isExtracting()) {
-    <p class="extracting">🔍 Reading details from the image…</p>
-    } @else if (extractionMessage()) {
-    <p class="extraction-note">{{ extractionMessage() }}</p>
-    }
     } @else {
     <label class="capture-label">
       <input type="file" accept="image/*" capture="environment" (change)="onImageSelected($event)" />
@@ -24,28 +16,24 @@
   <form class="fields" (ngSubmit)="save()">
     <label>
       Bill date
-      @if (isAutoFilled('billDate')) { <span class="detected">detected</span> }
       <input type="date" [ngModel]="billDate()" (ngModelChange)="updateBillDate($event)" name="billDate" required />
     </label>
 
     <label>
       Quantity (liters)
-      @if (isAutoFilled('quantityLiters')) { <span class="detected">detected</span> }
-      <input type="number" step="0.1" min="0" placeholder="e.g. 1.5" [ngModel]="quantityLiters()"
+      <input type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 1.5" [ngModel]="quantityLiters()"
         (ngModelChange)="updateQuantity($event)" name="quantityLiters" required />
     </label>
 
     <label>
       Rate per liter (₹)
-      @if (isAutoFilled('ratePerLiter')) { <span class="detected">detected</span> }
-      <input type="number" step="0.01" min="0" placeholder="e.g. 62" [ngModel]="ratePerLiter()"
+      <input type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 62" [ngModel]="ratePerLiter()"
         (ngModelChange)="updateRate($event)" name="ratePerLiter" required />
     </label>
 
     <label>
       Total amount (₹)
-      @if (isAutoFilled('totalAmount')) { <span class="detected">detected</span> }
-      <input type="number" step="0.01" min="0"
+      <input type="number" inputmode="decimal" step="0.01" min="0"
         [placeholder]="computedTotal() !== null ? computedTotal()!.toString() : 'Auto-calculated'"
         [ngModel]="totalAmountOverride()" (ngModelChange)="onTotalOverrideChange($event)" name="totalAmount" />
       @if (computedTotal() !== null && totalAmountOverride() === null) {
@@ -55,10 +43,37 @@
 
     <label>
       Vendor name <span class="optional">(optional)</span>
-      @if (isAutoFilled('vendorName')) { <span class="detected">detected</span> }
       <input type="text" placeholder="e.g. Aavin, local dairy" [ngModel]="vendorName()"
         (ngModelChange)="updateVendorName($event)" name="vendorName" />
     </label>
+
+    <div class="row">
+      <label>
+        FAT % <span class="optional">(optional)</span>
+        <input type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 4.9" [ngModel]="fatPercent()"
+          (ngModelChange)="updateFatPercent($event)" name="fatPercent" />
+      </label>
+
+      <label>
+        SNF % <span class="optional">(optional)</span>
+        <input type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 7.8" [ngModel]="snfPercent()"
+          (ngModelChange)="updateSnfPercent($event)" name="snfPercent" />
+      </label>
+    </div>
+
+    <div class="row">
+      <label>
+        Member code <span class="optional">(optional)</span>
+        <input type="text" placeholder="e.g. 031 CM" [ngModel]="memberCode()"
+          (ngModelChange)="updateMemberCode($event)" name="memberCode" />
+      </label>
+
+      <label>
+        Member name <span class="optional">(optional)</span>
+        <input type="text" placeholder="e.g. Murugan" [ngModel]="memberName()"
+          (ngModelChange)="updateMemberName($event)" name="memberName" />
+      </label>
+    </div>
 
     <label>
       Notes <span class="optional">(optional)</span>

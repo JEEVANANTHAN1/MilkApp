@@ -4,9 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MilkBillService } from '../milk-bill.service';
 import { MilkBillDraft } from '../models/milk-bill.model';
-import { OcrService } from '../ocr.service';
-import { OllamaOcrService } from '../ollama-ocr.service';
-import { parseBillText } from '../utils/bill-text-parser';
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
@@ -21,11 +18,7 @@ function todayIso(): string {
 })
 export class MilkBillFormComponent {
   private readonly milkBillService = inject(MilkBillService);
-  private readonly ocrService = inject(OcrService);
-  private readonly ollamaOcrService = inject(OllamaOcrService);
   private readonly router = inject(Router);
-
-  private selectedFile: File | null = null;
 
   imageDataUrl = signal<string | null>(null);
   billDate = signal<string>(todayIso());
@@ -33,15 +26,14 @@ export class MilkBillFormComponent {
   ratePerLiter = signal<number | null>(null);
   totalAmountOverride = signal<number | null>(null);
   vendorName = signal<string>('');
+  fatPercent = signal<number | null>(null);
+  snfPercent = signal<number | null>(null);
+  memberCode = signal<string>('');
+  memberName = signal<string>('');
   notes = signal<string>('');
 
   isSaving = signal(false);
   errorMessage = signal<string | null>(null);
-
-  isExtracting = signal(false);
-  /** Which fields were auto-filled from OCR, so the template can show a "detected" hint */
-  autoFilledFields = signal<Set<'billDate' | 'quantityLiters' | 'ratePerLiter' | 'totalAmount' | 'vendorName'>>(new Set());
-  extractionMessage = signal<string | null>(null);
 
   computedTotal = computed(() => {
     const qty = this.quantityLiters();
@@ -70,124 +62,53 @@ export class MilkBillFormComponent {
     if (!file) return;
 
     this.errorMessage.set(null);
-    this.extractionMessage.set(null);
-    this.selectedFile = file;
 
     try {
       const dataUrl = await this.fileToDataUrl(file);
       this.imageDataUrl.set(dataUrl);
     } catch {
       this.errorMessage.set('Could not read that image. Please try again.');
-      return;
     }
-
-    await this.extractFieldsFromImage(file);
-  }
-
-  private async extractFieldsFromImage(file: File): Promise<void> {
-    this.isExtracting.set(true);
-    try {
-      const text = await this.ocrService.extractText(file);
-      this.applyParsedText(text);
-    } catch {
-      this.extractionMessage.set("Couldn't scan that image for text. Please fill the fields in manually.");
-    } finally {
-      this.isExtracting.set(false);
-    }
-  }
-
-  /** Re-runs extraction on the currently selected image via the server-side Ollama OCR API. */
-  async rescanWithOllama(): Promise<void> {
-    if (!this.selectedFile || this.isExtracting()) return;
-
-    this.isExtracting.set(true);
-    this.extractionMessage.set(null);
-    try {
-      const text = await this.ollamaOcrService.extractText(this.selectedFile);
-      this.applyParsedText(text);
-    } catch {
-      this.extractionMessage.set(
-        "Couldn't reach the Ollama OCR server (is it running at localhost:5257?). Please fill the fields in manually."
-      );
-    } finally {
-      this.isExtracting.set(false);
-    }
-  }
-
-  private applyParsedText(rawText: string): void {
-    const parsed = parseBillText(rawText);
-    const filled = new Set<'billDate' | 'quantityLiters' | 'ratePerLiter' | 'totalAmount' | 'vendorName'>();
-
-    if (parsed.billDate) {
-      this.billDate.set(parsed.billDate);
-      filled.add('billDate');
-    }
-    if (parsed.quantityLiters !== null) {
-      this.quantityLiters.set(parsed.quantityLiters);
-      filled.add('quantityLiters');
-    }
-    if (parsed.ratePerLiter !== null) {
-      this.ratePerLiter.set(parsed.ratePerLiter);
-      filled.add('ratePerLiter');
-    }
-    if (parsed.totalAmount !== null) {
-      this.totalAmountOverride.set(parsed.totalAmount);
-      filled.add('totalAmount');
-    }
-    if (parsed.vendorName && !this.vendorName()) {
-      this.vendorName.set(parsed.vendorName);
-      filled.add('vendorName');
-    }
-
-    this.autoFilledFields.set(filled);
-    this.extractionMessage.set(
-      filled.size > 0
-        ? 'Auto-filled from the image — please double-check before saving.'
-        : "Couldn't confidently read details from that image. Please fill the fields in manually."
-    );
   }
 
   clearImage(): void {
     this.imageDataUrl.set(null);
-    this.extractionMessage.set(null);
-    this.autoFilledFields.set(new Set());
-    this.selectedFile = null;
   }
 
   updateBillDate(value: string): void {
     this.billDate.set(value);
-    this.unmarkAutoFilled('billDate');
   }
 
   updateQuantity(value: number | null): void {
     this.quantityLiters.set(value);
-    this.unmarkAutoFilled('quantityLiters');
   }
 
   updateRate(value: number | null): void {
     this.ratePerLiter.set(value);
-    this.unmarkAutoFilled('ratePerLiter');
   }
 
   updateVendorName(value: string): void {
     this.vendorName.set(value);
-    this.unmarkAutoFilled('vendorName');
+  }
+
+  updateFatPercent(value: number | null): void {
+    this.fatPercent.set(value);
+  }
+
+  updateSnfPercent(value: number | null): void {
+    this.snfPercent.set(value);
+  }
+
+  updateMemberCode(value: string): void {
+    this.memberCode.set(value);
+  }
+
+  updateMemberName(value: string): void {
+    this.memberName.set(value);
   }
 
   onTotalOverrideChange(value: string): void {
     this.totalAmountOverride.set(value === '' ? null : Number(value));
-    this.unmarkAutoFilled('totalAmount');
-  }
-
-  isAutoFilled(field: 'billDate' | 'quantityLiters' | 'ratePerLiter' | 'totalAmount' | 'vendorName'): boolean {
-    return this.autoFilledFields().has(field);
-  }
-
-  private unmarkAutoFilled(field: 'billDate' | 'quantityLiters' | 'ratePerLiter' | 'totalAmount' | 'vendorName'): void {
-    if (!this.autoFilledFields().has(field)) return;
-    const next = new Set(this.autoFilledFields());
-    next.delete(field);
-    this.autoFilledFields.set(next);
   }
 
   async save(): Promise<void> {
@@ -202,13 +123,17 @@ export class MilkBillFormComponent {
       ratePerLiter: this.ratePerLiter()!,
       totalAmount: this.effectiveTotal()!,
       vendorName: this.vendorName().trim() || undefined,
+      fatPercent: this.fatPercent() ?? undefined,
+      snfPercent: this.snfPercent() ?? undefined,
+      memberCode: this.memberCode().trim() || undefined,
+      memberName: this.memberName().trim() || undefined,
       notes: this.notes().trim() || undefined,
       imageDataUrl: this.imageDataUrl()!,
     };
 
     try {
       await this.milkBillService.addBill(draft);
-      this.router.navigate(['/milk-bills']);
+      this.router.navigate(['/bills']);
     } catch {
       this.errorMessage.set('Could not save the bill. Please try again.');
     } finally {

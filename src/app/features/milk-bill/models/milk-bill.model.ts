@@ -5,7 +5,16 @@ export interface MilkBill {
   quantityLiters: number;
   ratePerLiter: number;
   totalAmount: number;
+  /** Name of the dairy/collection center printed on the slip (e.g. "RADHA MILK DAIRY") */
   vendorName?: string;
+  /** Fat % reading from a dairy collection-center slip */
+  fatPercent?: number;
+  /** SNF (solids-not-fat) % reading from a dairy collection-center slip */
+  snfPercent?: number;
+  /** Member/farmer code printed on the slip (e.g. "031 CM") */
+  memberCode?: string;
+  /** Member/farmer name printed on the slip */
+  memberName?: string;
   notes?: string;
   /** base64 data URL of the scanned/captured bill image */
   imageDataUrl: string;

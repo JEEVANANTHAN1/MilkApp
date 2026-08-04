@@ -27,6 +27,18 @@
           @if (expandedId() === bill.id) {
             <div class="expanded" (click)="$event.stopPropagation()">
               <img class="full-image" [src]="bill.imageDataUrl" alt="Full bill image" />
+              @if (bill.fatPercent != null || bill.snfPercent != null) {
+                <p class="quality">
+                  @if (bill.fatPercent != null) { <span>FAT {{ bill.fatPercent }}%</span> }
+                  @if (bill.snfPercent != null) { <span>SNF {{ bill.snfPercent }}%</span> }
+                </p>
+              }
+              @if (bill.memberCode || bill.memberName) {
+                <p class="member">
+                  @if (bill.memberName) { <span>{{ bill.memberName }}</span> }
+                  @if (bill.memberCode) { <span>Code: {{ bill.memberCode }}</span> }
+                </p>
+              }
               @if (bill.notes) {
                 <p class="notes">{{ bill.notes }}</p>
               }

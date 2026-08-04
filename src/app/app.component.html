@@ -1,1 +1,20 @@
-<router-outlet />
+<div class="app-shell">
+  <main class="page-content">
+    <router-outlet />
+  </main>
+
+  <nav class="bottom-nav">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <span class="icon">🏠</span>
+      <span>Dashboard</span>
+    </a>
+    <a routerLink="/bills" routerLinkActive="active">
+      <span class="icon">🧾</span>
+      <span>Bills</span>
+    </a>
+    <a routerLink="/new" routerLinkActive="active">
+      <span class="icon">➕</span>
+      <span>Log bill</span>
+    </a>
+  </nav>
+</div>

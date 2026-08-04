@@ -1,1 +1,32 @@
-/* You can add global styles to this file, and also import other style files */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: #fafafa;
+  color: #222;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Keeps content clear of side/top notches when installed as a mobile PWA.
+     Bottom inset is handled locally by the fixed bottom-nav (app.component.scss)
+     instead of here, so it isn't applied twice. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}

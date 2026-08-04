@@ -1,0 +1,64 @@
+<div class="dashboard">
+  <h1>Dashboard</h1>
+
+  @if (milkBillService.isLoading()) {
+  <p class="empty">Loading…</p>
+  } @else if (milkBillService.allBills().length === 0) {
+  <div class="empty-state">
+    <p>No bills logged yet.</p>
+    <a class="add-button" routerLink="/new">+ Log your first bill</a>
+  </div>
+  } @else {
+  <label class="filter-row">
+    <span>Show</span>
+    <select [ngModel]="selectedMonth()" (ngModelChange)="setMonth($event)">
+      <option [value]="ALL_TIME">All time</option>
+      @for (m of monthOptions(); track m) {
+      <option [value]="m">{{ formatMonthLabel(m) }}</option>
+      }
+    </select>
+  </label>
+
+  @if (filteredBills().length === 0) {
+  <p class="empty">No bills logged for {{ formatMonthLabel(selectedMonth()) }}.</p>
+  } @else {
+  <div class="stats-grid">
+    <div class="stat-tile">
+      <span class="label">Total spent</span>
+      <span class="value">₹{{ filteredTotalSpent().toFixed(2) }}</span>
+      @if (monthDeltaPercent(); as delta) {
+      <span class="delta" [class.up]="delta > 0" [class.down]="delta < 0">
+        {{ delta > 0 ? '▲' : '▼' }} {{ (delta < 0 ? -delta : delta).toFixed(0) }}% vs prev. month
+      </span>
+      }
+    </div>
+    <div class="stat-tile">
+      <span class="label">Total liters</span>
+      <span class="value">{{ filteredTotalLiters().toFixed(1) }} L</span>
+    </div>
+    <div class="stat-tile">
+      <span class="label">Avg rate / L</span>
+      <span class="value">₹{{ filteredAverageRate().toFixed(2) }}</span>
+    </div>
+  </div>
+
+  <section class="recent">
+    <div class="section-header">
+      <h2>Bills</h2>
+      <a routerLink="/bills">View all</a>
+    </div>
+    <ul>
+      @for (bill of recentBills(); track bill.id) {
+      <li>
+        <img class="thumb" [src]="bill.imageDataUrl" alt="Bill from {{ bill.billDate }}" />
+        <div class="summary">
+          <strong>{{ bill.billDate }}</strong>
+          <span>{{ bill.quantityLiters }} L × ₹{{ bill.ratePerLiter }} = ₹{{ bill.totalAmount }}</span>
+        </div>
+      </li>
+      }
+    </ul>
+  </section>
+  }
+  }
+</div>
