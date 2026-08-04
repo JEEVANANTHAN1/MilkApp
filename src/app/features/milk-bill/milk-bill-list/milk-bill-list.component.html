@@ -22,7 +22,7 @@
               <span class="vendor">{{ bill.vendorName }}</span>
             }
           </div>
-          <button class="delete-button" (click)="delete(bill.id, $event)" aria-label="Delete">✕</button>
+          <button class="delete-button" (click)="delete(bill.id, $event)" aria-label="Delete">🗑</button>
 
           @if (expandedId() === bill.id) {
             <div class="expanded" (click)="$event.stopPropagation()">

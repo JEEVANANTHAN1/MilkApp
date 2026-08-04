@@ -7,7 +7,7 @@
 .page-content {
   flex: 1;
   /* Clears the fixed bottom-nav so the last bit of scrolled content isn't hidden behind it */
-  padding-bottom: calc(56px + env(safe-area-inset-bottom) + 12px);
+  padding-bottom: calc(68px + env(safe-area-inset-bottom) + 16px);
 }
 
 .bottom-nav {
@@ -16,9 +16,13 @@
   right: 0;
   bottom: 0;
   display: flex;
-  background: #fff;
-  border-top: 1px solid #e0e0e0;
-  padding-bottom: env(safe-area-inset-bottom);
+  gap: 4px;
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  border-top: 1px solid var(--color-border);
+  box-shadow: var(--shadow-nav);
+  padding: 6px 8px env(safe-area-inset-bottom);
 
   a {
     flex: 1;
@@ -28,18 +32,30 @@
     justify-content: center;
     gap: 2px;
     min-height: 56px;
-    padding: 0.5rem 0;
+    padding: 0.4rem 0;
     text-decoration: none;
-    color: #777;
+    color: var(--color-text-muted);
     font-size: 0.7rem;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    transition: color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 
     .icon {
-      font-size: 1.1rem;
+      font-size: 1.15rem;
+      transition: transform 0.15s ease;
+    }
+
+    &:active {
+      transform: scale(0.94);
     }
 
     &.active {
-      color: #2e7d32;
-      font-weight: 600;
+      color: var(--color-primary-dark);
+      background: var(--color-primary-light);
+
+      .icon {
+        transform: translateY(-1px);
+      }
     }
   }
 }
