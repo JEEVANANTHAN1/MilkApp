@@ -50,7 +50,6 @@ export class MilkBillFormComponent {
 
   canSave = computed(() => {
     return (
-      !!this.selectedImageFile() &&
       this.quantityLiters() != null &&
       this.quantityLiters()! > 0 &&
       this.ratePerLiter() != null &&
