@@ -14,7 +14,7 @@
     <ul>
       @for (bill of milkBillService.allBills(); track bill.id) {
         <li class="bill-item" (click)="toggleExpand(bill.id)">
-          <img class="thumb" [src]="bill.imageDataUrl" alt="Bill from {{ bill.billDate }}" />
+          <img class="thumb" [src]="bill.imageUrl" alt="Bill from {{ bill.billDate }}" />
           <div class="summary">
             <strong>{{ bill.billDate }}</strong>
             <span>{{ bill.quantityLiters }} L × ₹{{ bill.ratePerLiter }} = ₹{{ bill.totalAmount }}</span>
@@ -26,7 +26,7 @@
 
           @if (expandedId() === bill.id) {
             <div class="expanded" (click)="$event.stopPropagation()">
-              <img class="full-image" [src]="bill.imageDataUrl" alt="Full bill image" />
+              <img class="full-image" [src]="bill.imageUrl" alt="Full bill image" />
               @if (bill.fatPercent != null || bill.snfPercent != null) {
                 <p class="quality">
                   @if (bill.fatPercent != null) { <span>FAT {{ bill.fatPercent }}%</span> }

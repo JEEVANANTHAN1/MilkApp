@@ -20,7 +20,10 @@ export class MilkBillFormComponent {
   private readonly milkBillService = inject(MilkBillService);
   private readonly router = inject(Router);
 
-  imageDataUrl = signal<string | null>(null);
+  /** Local base64 preview only — never sent to the server */
+  imagePreviewUrl = signal<string | null>(null);
+  /** Raw selected file — uploaded to the server on save */
+  selectedImageFile = signal<File | null>(null);
   billDate = signal<string>(todayIso());
   quantityLiters = signal<number | null>(null);
   ratePerLiter = signal<number | null>(null);
@@ -47,7 +50,7 @@ export class MilkBillFormComponent {
 
   canSave = computed(() => {
     return (
-      !!this.imageDataUrl() &&
+      !!this.selectedImageFile() &&
       this.quantityLiters() != null &&
       this.quantityLiters()! > 0 &&
       this.ratePerLiter() != null &&
@@ -62,17 +65,19 @@ export class MilkBillFormComponent {
     if (!file) return;
 
     this.errorMessage.set(null);
+    this.selectedImageFile.set(file);
 
     try {
       const dataUrl = await this.fileToDataUrl(file);
-      this.imageDataUrl.set(dataUrl);
+      this.imagePreviewUrl.set(dataUrl);
     } catch {
       this.errorMessage.set('Could not read that image. Please try again.');
     }
   }
 
   clearImage(): void {
-    this.imageDataUrl.set(null);
+    this.imagePreviewUrl.set(null);
+    this.selectedImageFile.set(null);
   }
 
   updateBillDate(value: string): void {
@@ -128,11 +133,10 @@ export class MilkBillFormComponent {
       memberCode: this.memberCode().trim() || undefined,
       memberName: this.memberName().trim() || undefined,
       notes: this.notes().trim() || undefined,
-      imageDataUrl: this.imageDataUrl()!,
     };
 
     try {
-      await this.milkBillService.addBill(draft);
+      await this.milkBillService.addBill(draft, this.selectedImageFile());
       this.router.navigate(['/bills']);
     } catch {
       this.errorMessage.set('Could not save the bill. Please try again.');

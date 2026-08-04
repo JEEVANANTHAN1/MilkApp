@@ -50,7 +50,7 @@
     <ul>
       @for (bill of recentBills(); track bill.id) {
       <li>
-        <img class="thumb" [src]="bill.imageDataUrl" alt="Bill from {{ bill.billDate }}" />
+        <img class="thumb" [src]="bill.imageUrl" alt="Bill from {{ bill.billDate }}" />
         <div class="summary">
           <strong>{{ bill.billDate }}</strong>
           <span>{{ bill.quantityLiters }} L × ₹{{ bill.ratePerLiter }} = ₹{{ bill.totalAmount }}</span>

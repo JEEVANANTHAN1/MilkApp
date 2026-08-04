@@ -2,7 +2,7 @@
   <h1>Log today's milk bill</h1>
 
   <section class="image-capture">
-    @if (imageDataUrl(); as src) {
+    @if (imagePreviewUrl(); as src) {
     <img class="preview" [src]="src" alt="Captured milk bill" />
     <button type="button" class="secondary" (click)="clearImage()">Retake / Remove</button>
     } @else {
