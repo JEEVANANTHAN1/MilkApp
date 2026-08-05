@@ -25,7 +25,7 @@
   <div class="stats-grid">
     <div class="stat-tile primary">
       <span class="icon">💰</span>
-      <span class="label">Total spent</span>
+      <span class="label">Total Earning</span>
       <span class="value">₹{{ filteredTotalSpent().toFixed(2) }}</span>
       @if (monthDeltaPercent(); as delta) {
       <span class="delta" [class.up]="delta > 0" [class.down]="delta < 0">
