@@ -2,6 +2,8 @@ export interface MilkBill {
   id: string;
   /** ISO date string (yyyy-MM-dd) — the date printed on / relevant to the bill */
   billDate: string;
+  /** Whether this deposit was made in the morning or evening session */
+  shift: 'Morning' | 'Evening';
   quantityLiters: number;
   ratePerLiter: number;
   totalAmount: number;

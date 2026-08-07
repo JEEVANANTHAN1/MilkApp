@@ -55,7 +55,7 @@
       <li>
         <img class="thumb" [src]="bill.imageUrl" alt="Bill from {{ bill.billDate }}" />
         <div class="summary">
-          <strong>{{ bill.billDate }}</strong>
+          <strong>{{ bill.billDate }} <span class="shift-badge">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }} {{ bill.shift }}</span></strong>
           <span>{{ bill.quantityLiters }} L × ₹{{ bill.ratePerLiter }} = ₹{{ bill.totalAmount }}</span>
         </div>
       </li>

@@ -39,6 +39,7 @@ export class MilkBillService {
   async addBill(draft: MilkBillDraft, imageFile: File | null): Promise<MilkBill> {
     const formData = new FormData();
     formData.append('billDate', draft.billDate);
+    formData.append('shift', draft.shift);
     formData.append('quantityLiters', String(draft.quantityLiters));
     formData.append('ratePerLiter', String(draft.ratePerLiter));
     formData.append('totalAmount', String(draft.totalAmount));

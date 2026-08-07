@@ -9,6 +9,11 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+/** Returns 'Morning' if before noon, 'Evening' otherwise. */
+function defaultShift(): 'Morning' | 'Evening' {
+  return new Date().getHours() < 12 ? 'Morning' : 'Evening';
+}
+
 @Component({
   selector: 'app-milk-bill-form',
   standalone: true,
@@ -25,6 +30,8 @@ export class MilkBillFormComponent {
   /** Raw selected file — uploaded to the server on save */
   selectedImageFile = signal<File | null>(null);
   billDate = signal<string>(todayIso());
+  /** Morning/Evening — auto-defaults by time of day but the user can change it manually */
+  shift = signal<'Morning' | 'Evening'>(defaultShift());
   quantityLiters = signal<number | null>(null);
   ratePerLiter = signal<number | null>(null);
   totalAmountOverride = signal<number | null>(null);
@@ -83,6 +90,10 @@ export class MilkBillFormComponent {
     this.billDate.set(value);
   }
 
+  updateShift(value: 'Morning' | 'Evening'): void {
+    this.shift.set(value);
+  }
+
   updateQuantity(value: number | null): void {
     this.quantityLiters.set(value);
   }
@@ -123,6 +134,7 @@ export class MilkBillFormComponent {
 
     const draft: MilkBillDraft = {
       billDate: this.billDate(),
+      shift: this.shift(),
       quantityLiters: this.quantityLiters()!,
       ratePerLiter: this.ratePerLiter()!,
       totalAmount: this.effectiveTotal()!,
@@ -153,3 +165,4 @@ export class MilkBillFormComponent {
     });
   }
 }
+

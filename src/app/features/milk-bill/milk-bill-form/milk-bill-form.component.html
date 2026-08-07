@@ -19,6 +19,28 @@
       <input type="date" [ngModel]="billDate()" (ngModelChange)="updateBillDate($event)" name="billDate" required />
     </label>
 
+    <div class="shift-selector">
+      <span class="shift-label">Session</span>
+      <div class="shift-toggle" role="group" aria-label="Session">
+        <button
+          type="button"
+          id="shift-morning"
+          class="shift-btn"
+          [class.active]="shift() === 'Morning'"
+          (click)="updateShift('Morning')">
+          🌅 Morning
+        </button>
+        <button
+          type="button"
+          id="shift-evening"
+          class="shift-btn"
+          [class.active]="shift() === 'Evening'"
+          (click)="updateShift('Evening')">
+          🌆 Evening
+        </button>
+      </div>
+    </div>
+
     <label>
       Quantity (liters)
       <input type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 1.5" [ngModel]="quantityLiters()"
