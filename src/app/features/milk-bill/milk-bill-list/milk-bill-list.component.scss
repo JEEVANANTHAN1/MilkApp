@@ -1,178 +1,313 @@
 .bill-list {
   max-width: 480px;
   margin: 0 auto;
-  padding: 1.25rem 1rem 1rem;
+  padding: var(--space-lg) var(--space-md) var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
 
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-bottom: 1.1rem;
+/* ── Header ──────────────────────────────────────────────── */
+.bill-list__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
 
-    h1 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin: 0;
+.bill-list__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+/* ── Search bar ──────────────────────────────────────────── */
+.search-bar {
+  display: flex;
+  gap: var(--space-sm);
+
+  &__input-wrap {
+    position: relative;
+    flex: 1;
+  }
+
+  &__icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: var(--color-on-surface-variant);
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    height: 48px;
+    background: var(--color-surface-container);
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 0 var(--space-md) 0 44px;
+    font-size: 0.9rem;
+    color: var(--color-on-surface);
+    outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+
+    &::placeholder { color: var(--color-outline-variant); }
+
+    &:focus {
+      border-color: var(--color-primary);
+      background: var(--color-surface-container-lowest);
     }
   }
 
-  .add-button {
+  &__add-btn {
     display: flex;
     align-items: center;
-    min-height: 44px;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
     background: var(--color-primary);
-    color: var(--color-primary-contrast);
-    padding: 0.55rem 1rem;
-    border-radius: var(--radius-pill);
+    color: var(--color-on-primary);
+    border-radius: var(--radius-md);
     text-decoration: none;
-    font-size: 0.88rem;
-    font-weight: 600;
-    white-space: nowrap;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.15s ease;
+    flex-shrink: 0;
+    transition: transform 0.15s ease, opacity 0.15s ease;
 
-    &:active {
-      transform: scale(0.96);
-    }
+    &:active { transform: scale(0.92); }
+
+    .material-symbols-outlined { font-size: 24px; }
+  }
+}
+
+/* ── Summary chip ────────────────────────────────────────── */
+.list-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant);
+  padding: var(--space-xs) 0;
+
+  .material-symbols-outlined { font-size: 18px; color: var(--color-primary); }
+
+  strong { color: var(--color-primary); }
+}
+
+/* ── Bill items ──────────────────────────────────────────── */
+.bill-list__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.bill-card {
+  position: relative;
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-surface-container-high);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+
+  /* Left green accent on hover */
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--color-primary);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.2s ease;
   }
 
-  .empty {
-    color: var(--color-text-muted);
-    text-align: center;
-    margin-top: 2rem;
+  &:hover::before,
+  &--expanded::before {
+    transform: scaleY(1);
   }
 
-  .total {
+  &:active {
+    transform: scale(0.985);
+  }
+
+  &__main {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+  }
+
+  &__left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__date {
+    font-size: 0.95rem;
     font-weight: 700;
-    font-size: 1.05rem;
-    margin-bottom: 0.9rem;
-    color: var(--color-primary-dark);
+    color: var(--color-on-surface);
+    margin: 0 0 2px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
   }
 
-  ul {
-    list-style: none;
-    padding: 0;
+  &__vendor {
+    font-size: 0.8rem;
+    color: var(--color-on-surface-variant);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__right {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
   }
 
-  .bill-item {
-    position: relative;
+  &__amount {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  &__liters {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-outline);
+    background: var(--color-surface-variant);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+  }
+
+  &__delete {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.65rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-xs);
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-pill);
+    color: var(--color-error);
     cursor: pointer;
-    flex-wrap: wrap;
-    transition: box-shadow 0.15s ease, transform 0.1s ease;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease;
 
-    &:hover {
-      box-shadow: var(--shadow-sm);
-    }
+    &:hover { background: var(--color-error-container); }
 
-    &:active {
-      transform: scale(0.99);
-    }
-
-    .thumb {
-      width: 50px;
-      height: 50px;
-      object-fit: cover;
-      border-radius: var(--radius-sm);
-      background: var(--color-surface-muted);
-    }
-
-    .summary {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.9rem;
-      flex: 1;
-      min-width: 0;
-      overflow-wrap: break-word;
-
-      strong {
-        font-weight: 600;
-      }
-
-      .shift-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.2rem;
-        font-size: 0.72rem;
-        font-weight: 600;
-        padding: 0.05rem 0.45rem;
-        border-radius: var(--radius-pill);
-        background: var(--color-surface-muted);
-        color: var(--color-text-muted);
-        vertical-align: middle;
-        margin-left: 0.35rem;
-      }
-
-      .vendor {
-        color: var(--color-text-muted);
-        font-size: 0.8rem;
-      }
-    }
-
-    .delete-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 40px;
-      min-height: 40px;
-      background: transparent;
-      border: none;
-      border-radius: var(--radius-pill);
-      color: var(--color-danger);
-      font-size: 0.95rem;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: background-color 0.15s ease;
-
-      &:hover {
-        background: var(--color-danger-light);
-      }
-    }
-
-    .expanded {
-      width: 100%;
-      margin-top: 0.6rem;
-      padding-top: 0.6rem;
-      border-top: 1px dashed var(--color-border);
-
-      .full-image {
-        width: 100%;
-        border-radius: var(--radius-sm);
-      }
-
-      .quality,
-      .member {
-        display: flex;
-        gap: 0.75rem;
-        margin-top: 0.5rem;
-        font-size: 0.8rem;
-        color: var(--color-text-muted);
-
-        span {
-          background: var(--color-surface-muted);
-          padding: 0.15rem 0.5rem;
-          border-radius: var(--radius-pill);
-        }
-      }
-
-      .notes {
-        margin-top: 0.5rem;
-        font-size: 0.85rem;
-        color: var(--color-text-muted);
-      }
-    }
+    .material-symbols-outlined { font-size: 20px; }
   }
+
+  /* Expanded panel */
+  &__expanded {
+    padding: 0 var(--space-md) var(--space-md);
+    border-top: 1px dashed color-mix(in srgb, var(--color-outline-variant) 50%, transparent);
+    margin: 0 var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  &__image {
+    width: 100%;
+    border-radius: var(--radius-md);
+    object-fit: contain;
+    max-height: 280px;
+    background: var(--color-surface-container-low);
+  }
+
+  &__metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  &__notes {
+    font-size: 0.85rem;
+    color: var(--color-on-surface-variant);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+/* ── Metric chip ─────────────────────────────────────────── */
+.metric-chip {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+}
+
+/* ── Shift badge ─────────────────────────────────────────── */
+.shift-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+  vertical-align: middle;
+}
+
+/* ── Empty / loading ─────────────────────────────────────── */
+.empty-msg {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: var(--space-xl) 0;
+  margin: 0;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-xl) 0;
+  text-align: center;
+
+  &__icon {
+    font-size: 48px;
+    color: var(--color-outline-variant);
+  }
+
+  &__text {
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+}
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0.6rem 1.5rem;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease;
+
+  &:active { transform: scale(0.96); }
+
+  .material-symbols-outlined { font-size: 20px; }
 }

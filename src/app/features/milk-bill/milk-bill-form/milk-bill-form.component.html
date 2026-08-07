@@ -1,114 +1,264 @@
 <div class="bill-form">
-  <h1>Log today's milk bill</h1>
 
-  <section class="image-capture">
+  <!-- Header -->
+  <div class="bill-form__header">
+    <h2 class="bill-form__title">Log Bill</h2>
+    <p class="bill-form__subtitle">Enter daily collection details</p>
+  </div>
+
+  <!-- Smart Capture Card -->
+  <div class="capture-card">
     @if (imagePreviewUrl(); as src) {
-    <img class="preview" [src]="src" alt="Captured milk bill" />
-    <button type="button" class="secondary" (click)="clearImage()">Retake / Remove</button>
+      <img class="capture-card__preview" [src]="src" alt="Captured milk bill" />
+      <button type="button" class="btn btn--secondary" (click)="clearImage()">
+        <span class="material-symbols-outlined">refresh</span>
+        Retake / Remove
+      </button>
     } @else {
-    <label class="capture-label">
-      <input type="file" accept="image/*" capture="environment" (change)="onImageSelected($event)" />
-      <span>📷 Scan / Upload bill photo</span>
-    </label>
-    }
-  </section>
-
-  <form class="fields" (ngSubmit)="save()">
-    <label>
-      Bill date
-      <input type="date" [ngModel]="billDate()" (ngModelChange)="updateBillDate($event)" name="billDate" required />
-    </label>
-
-    <div class="shift-selector">
-      <span class="shift-label">Session</span>
-      <div class="shift-toggle" role="group" aria-label="Session">
-        <button
-          type="button"
-          id="shift-morning"
-          class="shift-btn"
-          [class.active]="shift() === 'Morning'"
-          (click)="updateShift('Morning')">
-          🌅 Morning
-        </button>
-        <button
-          type="button"
-          id="shift-evening"
-          class="shift-btn"
-          [class.active]="shift() === 'Evening'"
-          (click)="updateShift('Evening')">
-          🌆 Evening
-        </button>
+      <div class="capture-card__icon-wrap">
+        <span class="material-symbols-outlined capture-card__icon">document_scanner</span>
       </div>
-    </div>
-
-    <label>
-      Quantity (liters)
-      <input type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 1.5" [ngModel]="quantityLiters()"
-        (ngModelChange)="updateQuantity($event)" name="quantityLiters" required />
-    </label>
-
-    <label>
-      Rate per liter (₹)
-      <input type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 62" [ngModel]="ratePerLiter()"
-        (ngModelChange)="updateRate($event)" name="ratePerLiter" required />
-    </label>
-
-    <label>
-      Total amount (₹)
-      <input type="number" inputmode="decimal" step="0.01" min="0"
-        [placeholder]="computedTotal() !== null ? computedTotal()!.toString() : 'Auto-calculated'"
-        [ngModel]="totalAmountOverride()" (ngModelChange)="onTotalOverrideChange($event)" name="totalAmount" />
-      @if (computedTotal() !== null && totalAmountOverride() === null) {
-      <small>Auto-calculated: ₹{{ computedTotal() }}</small>
-      }
-    </label>
-
-    <label>
-      Vendor name <span class="optional">(optional)</span>
-      <input type="text" placeholder="e.g. Aavin, local dairy" [ngModel]="vendorName()"
-        (ngModelChange)="updateVendorName($event)" name="vendorName" />
-    </label>
-
-    <div class="row">
-      <label>
-        FAT % <span class="optional">(optional)</span>
-        <input type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 4.9" [ngModel]="fatPercent()"
-          (ngModelChange)="updateFatPercent($event)" name="fatPercent" />
+      <div class="capture-card__text">
+        <h3 class="capture-card__heading">Smart Capture</h3>
+        <p class="capture-card__desc">Scan physical slip to auto-fill</p>
+      </div>
+      <label class="btn btn--scan">
+        <span class="material-symbols-outlined">photo_camera</span>
+        Scan Slip
+        <input type="file" accept="image/*" capture="environment" (change)="onImageSelected($event)" hidden />
       </label>
+    }
+  </div>
 
-      <label>
-        SNF % <span class="optional">(optional)</span>
-        <input type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 7.8" [ngModel]="snfPercent()"
-          (ngModelChange)="updateSnfPercent($event)" name="snfPercent" />
-      </label>
-    </div>
+  <!-- Divider -->
+  <div class="or-divider">
+    <span class="or-divider__line"></span>
+    <span class="or-divider__text">OR MANUAL ENTRY</span>
+    <span class="or-divider__line"></span>
+  </div>
 
-    <div class="row">
-      <label>
-        Member code <span class="optional">(optional)</span>
-        <input type="text" placeholder="e.g. 031 CM" [ngModel]="memberCode()"
-          (ngModelChange)="updateMemberCode($event)" name="memberCode" />
-      </label>
+  <!-- Manual entry form -->
+  <form class="form-fields" (ngSubmit)="save()">
 
-      <label>
-        Member name <span class="optional">(optional)</span>
-        <input type="text" placeholder="e.g. Murugan" [ngModel]="memberName()"
-          (ngModelChange)="updateMemberName($event)" name="memberName" />
-      </label>
-    </div>
+    <!-- Primary fields card -->
+    <div class="form-card">
 
-    <label>
-      Notes <span class="optional">(optional)</span>
-      <textarea rows="2" placeholder="Anything worth remembering about this bill" [ngModel]="notes()"
-        (ngModelChange)="notes.set($event)" name="notes"></textarea>
-    </label>
+      <!-- Date -->
+      <div class="field">
+        <label class="field__label" for="bill_date">Bill Date</label>
+        <input
+          id="bill_date"
+          class="field__input"
+          type="date"
+          [ngModel]="billDate()"
+          (ngModelChange)="updateBillDate($event)"
+          name="billDate"
+          required
+        />
+      </div>
 
+      <!-- Session toggle -->
+      <div class="field">
+        <span class="field__label">Session</span>
+        <div class="shift-toggle" role="group" aria-label="Session">
+          <button
+            type="button"
+            id="shift-morning"
+            class="shift-btn"
+            [class.shift-btn--active]="shift() === 'Morning'"
+            (click)="updateShift('Morning')">
+            🌅 Morning
+          </button>
+          <button
+            type="button"
+            id="shift-evening"
+            class="shift-btn"
+            [class.shift-btn--active]="shift() === 'Evening'"
+            (click)="updateShift('Evening')">
+            🌆 Evening
+          </button>
+        </div>
+      </div>
+
+      <!-- Quantity & Rate row -->
+      <div class="field-row">
+        <div class="field">
+          <label class="field__label" for="quantity">Quantity (L)</label>
+          <input
+            id="quantity"
+            class="field__input"
+            type="number"
+            inputmode="decimal"
+            step="0.1"
+            min="0"
+            placeholder="0.0"
+            [ngModel]="quantityLiters()"
+            (ngModelChange)="updateQuantity($event)"
+            name="quantityLiters"
+            required
+          />
+        </div>
+        <div class="field">
+          <label class="field__label" for="rate">Rate / L (₹)</label>
+          <input
+            id="rate"
+            class="field__input"
+            type="number"
+            inputmode="decimal"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+            [ngModel]="ratePerLiter()"
+            (ngModelChange)="updateRate($event)"
+            name="ratePerLiter"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Auto-calculated total -->
+      <div class="total-chip">
+        <div class="total-chip__left">
+          <span class="total-chip__label">Estimated Total</span>
+          <span class="total-chip__value">
+            ₹{{ computedTotal() !== null ? computedTotal() : '0.00' }}
+          </span>
+          <span class="total-chip__override">
+            Manual override:
+            <input
+              class="total-chip__input"
+              type="number"
+              inputmode="decimal"
+              step="0.01"
+              min="0"
+              [ngModel]="totalAmountOverride()"
+              (ngModelChange)="onTotalOverrideChange($event)"
+              name="totalAmount"
+              placeholder="Optional"
+            />
+          </span>
+        </div>
+        <span class="material-symbols-outlined total-chip__icon">calculate</span>
+      </div>
+
+    </div><!-- /form-card -->
+
+    <!-- Advanced details accordion -->
+    <details class="accordion">
+      <summary class="accordion__toggle">
+        <span class="accordion__label">Advanced Details <small>(Quality &amp; Vendor)</small></span>
+        <span class="material-symbols-outlined accordion__arrow">expand_more</span>
+      </summary>
+
+      <div class="form-card accordion__body">
+
+        <!-- Vendor name -->
+        <div class="field">
+          <label class="field__label" for="vendor_name">Vendor Name</label>
+          <input
+            id="vendor_name"
+            class="field__input"
+            type="text"
+            placeholder="e.g. Aavin, local dairy"
+            [ngModel]="vendorName()"
+            (ngModelChange)="updateVendorName($event)"
+            name="vendorName"
+          />
+        </div>
+
+        <!-- FAT & SNF row -->
+        <div class="field-row">
+          <div class="field">
+            <label class="field__label" for="fat">FAT %</label>
+            <input
+              id="fat"
+              class="field__input"
+              type="number"
+              inputmode="decimal"
+              step="0.01"
+              min="0"
+              placeholder="e.g. 4.9"
+              [ngModel]="fatPercent()"
+              (ngModelChange)="updateFatPercent($event)"
+              name="fatPercent"
+            />
+          </div>
+          <div class="field">
+            <label class="field__label" for="snf">SNF %</label>
+            <input
+              id="snf"
+              class="field__input"
+              type="number"
+              inputmode="decimal"
+              step="0.01"
+              min="0"
+              placeholder="e.g. 7.8"
+              [ngModel]="snfPercent()"
+              (ngModelChange)="updateSnfPercent($event)"
+              name="snfPercent"
+            />
+          </div>
+        </div>
+
+        <!-- Member code & name row -->
+        <div class="field-row">
+          <div class="field">
+            <label class="field__label" for="member_code">Member Code</label>
+            <input
+              id="member_code"
+              class="field__input"
+              type="text"
+              placeholder="e.g. 031 CM"
+              [ngModel]="memberCode()"
+              (ngModelChange)="updateMemberCode($event)"
+              name="memberCode"
+            />
+          </div>
+          <div class="field">
+            <label class="field__label" for="member_name">Member Name</label>
+            <input
+              id="member_name"
+              class="field__input"
+              type="text"
+              placeholder="e.g. Murugan"
+              [ngModel]="memberName()"
+              (ngModelChange)="updateMemberName($event)"
+              name="memberName"
+            />
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="field">
+          <label class="field__label" for="notes">Notes</label>
+          <textarea
+            id="notes"
+            class="field__input field__input--textarea"
+            rows="2"
+            placeholder="Anything worth remembering…"
+            [ngModel]="notes()"
+            (ngModelChange)="notes.set($event)"
+            name="notes"
+          ></textarea>
+        </div>
+
+      </div>
+    </details>
+
+    <!-- Error -->
     @if (errorMessage(); as msg) {
-    <p class="error">{{ msg }}</p>
+      <p class="error-msg">
+        <span class="material-symbols-outlined">error</span>
+        {{ msg }}
+      </p>
     }
 
-    <button type="submit" class="primary" [disabled]="!canSave() || isSaving()">
-      {{ isSaving() ? 'Saving…' : 'Save bill' }}
+    <!-- Submit CTA -->
+    <button type="submit" class="btn btn--primary" [disabled]="!canSave() || isSaving()">
+      <span class="material-symbols-outlined">save</span>
+      {{ isSaving() ? 'Saving…' : 'Save Bill' }}
     </button>
+
   </form>
+
 </div>

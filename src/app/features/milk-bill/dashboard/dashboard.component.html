@@ -1,67 +1,156 @@
 <div class="dashboard">
-  <h1>Dashboard</h1>
 
   @if (milkBillService.isLoading()) {
-  <p class="empty">Loading…</p>
+    <!-- Loading state -->
+    <div class="dashboard__header">
+      <div>
+        <h2 class="dashboard__title">Overview</h2>
+        <p class="dashboard__subtitle">Track your dairy collections</p>
+      </div>
+    </div>
+    <p class="empty-msg">Loading…</p>
+
   } @else if (milkBillService.allBills().length === 0) {
-  <div class="empty-state">
-    <p>No bills logged yet.</p>
-    <a class="add-button" routerLink="/new">+ Log your first bill</a>
-  </div>
-  } @else {
-  <label class="filter-row">
-    <span>Show</span>
-    <select [ngModel]="selectedMonth()" (ngModelChange)="setMonth($event)">
-      <option [value]="ALL_TIME">All time</option>
-      @for (m of monthOptions(); track m) {
-      <option [value]="m">{{ formatMonthLabel(m) }}</option>
-      }
-    </select>
-  </label>
+    <!-- Empty state -->
+    <div class="dashboard__header">
+      <div>
+        <h2 class="dashboard__title">Overview</h2>
+        <p class="dashboard__subtitle">Track your dairy collections</p>
+      </div>
+    </div>
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-state__icon">water_drop</span>
+      <p class="empty-state__text">No bills logged yet.</p>
+      <a class="cta-btn" routerLink="/new">
+        <span class="material-symbols-outlined">add_circle</span>
+        Log your first bill
+      </a>
+    </div>
 
-  @if (filteredBills().length === 0) {
-  <p class="empty">No bills logged for {{ formatMonthLabel(selectedMonth()) }}.</p>
   } @else {
-  <div class="stats-grid">
-    <div class="stat-tile primary">
-      <span class="icon">💰</span>
-      <span class="label">Total Earning</span>
-      <span class="value">₹{{ filteredTotalSpent().toFixed(2) }}</span>
-      @if (monthDeltaPercent(); as delta) {
-      <span class="delta" [class.up]="delta > 0" [class.down]="delta < 0">
-        {{ delta > 0 ? '▲' : '▼' }} {{ (delta < 0 ? -delta : delta).toFixed(0) }}% vs prev. month
-      </span>
-      }
+    <!-- Header + filter -->
+    <div class="dashboard__header">
+      <div>
+        <h2 class="dashboard__title">Overview</h2>
+        <p class="dashboard__subtitle">Track your dairy collections</p>
+      </div>
+      <div class="period-toggle">
+        <label class="period-toggle__option" [class.active]="selectedMonth() !== ALL_TIME">
+          <select [ngModel]="selectedMonth()" (ngModelChange)="setMonth($event)" class="period-toggle__select" aria-label="Select period">
+            <option [value]="ALL_TIME">All time</option>
+            @for (m of monthOptions(); track m) {
+              <option [value]="m">{{ formatMonthLabel(m) }}</option>
+            }
+          </select>
+          <span class="period-toggle__label">{{ selectedMonth() === ALL_TIME ? 'All time' : formatMonthLabel(selectedMonth()) }}</span>
+          <span class="material-symbols-outlined period-toggle__arrow">expand_more</span>
+        </label>
+      </div>
     </div>
-    <div class="stat-tile">
-      <span class="icon">🥛</span>
-      <span class="label">Total liters</span>
-      <span class="value">{{ filteredTotalLiters().toFixed(1) }} L</span>
-    </div>
-    <div class="stat-tile">
-      <span class="icon">📊</span>
-      <span class="label">Avg rate / L</span>
-      <span class="value">₹{{ filteredAverageRate().toFixed(2) }}</span>
-    </div>
-  </div>
 
-  <section class="recent">
-    <div class="section-header">
-      <h2>Bills</h2>
-      <a routerLink="/bills">View all</a>
-    </div>
-    <ul>
-      @for (bill of recentBills(); track bill.id) {
-      <li>
-        <img class="thumb" [src]="bill.imageUrl" alt="Bill from {{ bill.billDate }}" />
-        <div class="summary">
-          <strong>{{ bill.billDate }} <span class="shift-badge">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }} {{ bill.shift }}</span></strong>
-          <span>{{ bill.quantityLiters }} L × ₹{{ bill.ratePerLiter }} = ₹{{ bill.totalAmount }}</span>
+    @if (filteredBills().length === 0) {
+      <p class="empty-msg">No bills for {{ formatMonthLabel(selectedMonth()) }}.</p>
+    } @else {
+
+      <!-- Bento stat grid -->
+      <section class="stats-grid" aria-label="Summary statistics">
+
+        <!-- Total Earnings — full width -->
+        <div class="stat-card stat-card--full">
+          <div class="stat-card__top">
+            <span class="stat-card__label">Total Earnings</span>
+            <span class="material-symbols-outlined stat-card__icon">payments</span>
+          </div>
+          <div class="stat-card__value">₹{{ filteredTotalSpent().toFixed(2) }}</div>
+          @if (monthDeltaPercent(); as delta) {
+            <div class="stat-card__badge" [class.stat-card__badge--up]="delta > 0" [class.stat-card__badge--down]="delta < 0">
+              <span class="material-symbols-outlined">{{ delta > 0 ? 'trending_up' : 'trending_down' }}</span>
+              {{ (delta < 0 ? -delta : delta).toFixed(0) }}% vs prev. month
+            </div>
+          } @else {
+            <div class="stat-card__badge stat-card__badge--neutral">
+              <span class="material-symbols-outlined">show_chart</span>
+              Total Earnings
+            </div>
+          }
         </div>
-      </li>
-      }
-    </ul>
-  </section>
-  }
+
+        <!-- Total Liters -->
+        <div class="stat-card">
+          <div class="stat-card__top">
+            <span class="stat-card__label">Total Liters</span>
+            <span class="material-symbols-outlined stat-card__icon">water_drop</span>
+          </div>
+          <div class="stat-card__value">{{ filteredTotalLiters().toFixed(1) }}</div>
+          <div class="stat-card__sub">Liters collected</div>
+        </div>
+
+        <!-- Avg Rate -->
+        <div class="stat-card">
+          <div class="stat-card__top">
+            <span class="stat-card__label">Avg Rate</span>
+            <span class="material-symbols-outlined stat-card__icon">monitoring</span>
+          </div>
+          <div class="stat-card__value">₹{{ filteredAverageRate().toFixed(2) }}</div>
+          <div class="stat-card__sub">Per liter</div>
+        </div>
+
+        <!-- Weekly quota (progress ring) -->
+        <div class="stat-card stat-card--full stat-card--quota">
+          <div class="stat-card__quota-text">
+            <h3 class="stat-card__label">Bills this period</h3>
+            <div class="stat-card__quota-value">
+              {{ filteredBills().length }}
+              <span class="stat-card__sub"> deliveries</span>
+            </div>
+          </div>
+          <!-- Progress ring -->
+          <div class="progress-ring" aria-hidden="true">
+            <svg viewBox="0 0 36 36" class="progress-ring__svg">
+              <path class="progress-ring__track"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none" stroke-width="4"/>
+              <path class="progress-ring__fill"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none" stroke-width="4" stroke-linecap="round"
+                [attr.stroke-dasharray]="(filteredBills().length > 0 ? 82 : 10) + ', 100'"/>
+            </svg>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Recent deliveries -->
+      <section class="recent" aria-label="Recent deliveries">
+        <div class="recent__header">
+          <h3 class="recent__title">Recent Deliveries</h3>
+          <a routerLink="/bills" class="recent__view-all">View All</a>
+        </div>
+
+        <div class="recent__list-card">
+          <ul class="recent__list">
+            @for (bill of recentBills(); track bill.id; let first = $first) {
+              <li class="recent__item" [class.recent__item--today]="first">
+                <div class="recent__item-left">
+                  <div class="recent__avatar" [class.recent__avatar--active]="first">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                  </div>
+                  <div class="recent__meta">
+                    <p class="recent__date">{{ bill.billDate }}
+                      <span class="shift-badge">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }} {{ bill.shift }}</span>
+                    </p>
+                    <p class="recent__detail">{{ bill.quantityLiters }} L
+                      @if (bill.vendorName) { · {{ bill.vendorName }} }
+                    </p>
+                  </div>
+                </div>
+                <div class="recent__amount">₹{{ bill.totalAmount }}</div>
+              </li>
+            }
+          </ul>
+        </div>
+      </section>
+
+    }
   }
 </div>

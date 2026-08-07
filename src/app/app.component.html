@@ -1,20 +1,36 @@
 <div class="app-shell">
+  <!-- ── Top App Bar ─────────────────────────────────── -->
+  <header class="top-bar">
+    <button class="icon-btn" aria-label="Menu">
+      <span class="material-symbols-outlined">agriculture</span>
+    </button>
+    <span class="top-bar__title">MilkApp</span>
+    <button class="icon-btn" aria-label="Account">
+      <span class="material-symbols-outlined">account_circle</span>
+    </button>
+  </header>
+
+  <!-- ── Page content ───────────────────────────────── -->
   <main class="page-content">
     <router-outlet />
   </main>
 
-  <nav class="bottom-nav">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-      <span class="icon">🏠</span>
-      <span>Dashboard</span>
+  <!-- ── Bottom Navigation ──────────────────────────── -->
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+       class="bottom-nav__item" aria-label="Dashboard">
+      <span class="material-symbols-outlined bottom-nav__icon">dashboard</span>
+      <span class="bottom-nav__label">Dashboard</span>
     </a>
-    <a routerLink="/bills" routerLinkActive="active">
-      <span class="icon">🧾</span>
-      <span>Bills</span>
+    <a routerLink="/bills" routerLinkActive="active"
+       class="bottom-nav__item" aria-label="Deliveries">
+      <span class="material-symbols-outlined bottom-nav__icon">receipt_long</span>
+      <span class="bottom-nav__label">Deliveries</span>
     </a>
-    <a routerLink="/new" routerLinkActive="active">
-      <span class="icon">➕</span>
-      <span>Log bill</span>
+    <a routerLink="/new" routerLinkActive="active"
+       class="bottom-nav__item" aria-label="Log Delivery">
+      <span class="material-symbols-outlined bottom-nav__icon">add_circle</span>
+      <span class="bottom-nav__label">Log Delivery</span>
     </a>
   </nav>
 </div>

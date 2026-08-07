@@ -1,3 +1,7 @@
+/* ============================================================
+   Dairy Slip Tracker — Agro-Fresh Minimalist Design System
+   ============================================================ */
+
 *,
 *::before,
 *::after {
@@ -5,66 +9,88 @@
 }
 
 :root {
-  --color-bg: #f6f7f9;
-  --color-surface: #ffffff;
-  --color-surface-muted: #f1f3f5;
-  --color-border: #e8eaed;
-  --color-text: #14181f;
-  --color-text-muted: #6b7280;
-  --color-text-faint: #9ca3af;
+  /* ── Color palette ─────────────────────────────────────── */
+  --color-primary:              #0f5238;
+  --color-primary-container:    #2d6a4f;
+  --color-on-primary:           #ffffff;
+  --color-on-primary-container: #a8e7c5;
+  --color-primary-fixed:        #b1f0ce;
+  --color-primary-fixed-dim:    #95d4b3;
 
-  --color-primary: #16a34a;
-  --color-primary-dark: #0f7a37;
-  --color-primary-light: #e6f7ec;
-  --color-primary-contrast: #ffffff;
+  --color-secondary:            #5c5f60;
+  --color-secondary-container:  #e1e3e4;
+  --color-on-secondary:         #ffffff;
 
-  --color-danger: #e11d48;
-  --color-danger-light: #fde8ee;
+  --color-surface:              #e8fff0;
+  --color-surface-dim:          #b8e4cc;
+  --color-surface-bright:       #e8fff0;
+  --color-surface-container:          #ccf8df;
+  --color-surface-container-low:      #d1fee5;
+  --color-surface-container-high:     #c6f2da;
+  --color-surface-container-highest:  #c1ecd4;
+  --color-surface-container-lowest:   #ffffff;
+  --color-surface-variant:      #c1ecd4;
+  --color-surface-tint:         #2c694e;
 
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 22px;
-  --radius-pill: 999px;
+  --color-on-surface:           #002114;
+  --color-on-surface-variant:   #404943;
+  --color-on-background:        #002114;
+  --color-background:           #e8fff0;
 
-  --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.04);
-  --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
-  --shadow-md: 0 8px 24px rgba(16, 24, 40, 0.08), 0 2px 6px rgba(16, 24, 40, 0.04);
-  --shadow-nav: 0 -2px 16px rgba(16, 24, 40, 0.06);
+  --color-inverse-surface:      #0e3727;
+  --color-inverse-on-surface:   #cffbe2;
+  --color-inverse-primary:      #95d4b3;
 
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --color-outline:              #707973;
+  --color-outline-variant:      #bfc9c1;
+
+  --color-error:                #ba1a1a;
+  --color-on-error:             #ffffff;
+  --color-error-container:      #ffdad6;
+  --color-on-error-container:   #93000a;
+
+  /* ── Semantic aliases ────────────────────────────────────── */
+  --color-text:              var(--color-on-surface);
+  --color-text-muted:        var(--color-on-surface-variant);
+  --color-text-faint:        var(--color-outline);
+  --color-border:            var(--color-outline-variant);
+  --color-danger:            var(--color-error);
+  --color-danger-light:      var(--color-error-container);
+  --color-primary-dark:      var(--color-primary);
+  --color-primary-light:     var(--color-surface-container-low);
+  --color-primary-contrast:  var(--color-on-primary);
+  --color-surface-muted:     var(--color-surface-container-low);
+
+  /* ── Typography ──────────────────────────────────────────── */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* ── Radii ───────────────────────────────────────────────── */
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-pill: 9999px;
+
+  /* ── Shadows ─────────────────────────────────────────────── */
+  --shadow-xs:  0 1px 2px rgba(0, 33, 20, 0.04);
+  --shadow-sm:  0 8px 16px -6px rgba(0, 33, 20, 0.04), 0 1px 3px rgba(0, 33, 20, 0.04);
+  --shadow-md:  0 12px 28px -8px rgba(0, 33, 20, 0.08), 0 2px 8px rgba(0, 33, 20, 0.04);
+  --shadow-nav: 0 -2px 16px rgba(0, 33, 20, 0.06);
+
+  /* ── Spacing ─────────────────────────────────────────────── */
+  --space-xs:            4px;
+  --space-sm:            12px;
+  --space-md:            16px;
+  --space-lg:            24px;
+  --space-xl:            32px;
+  --space-mobile-margin: 16px;
 
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #101214;
-    --color-surface: #1a1d21;
-    --color-surface-muted: #202327;
-    --color-border: #2c3036;
-    --color-text: #f2f3f5;
-    --color-text-muted: #9aa1ac;
-    --color-text-faint: #6b7280;
-
-    --color-primary: #22c55e;
-    --color-primary-dark: #16a34a;
-    --color-primary-light: #10321f;
-    --color-primary-contrast: #ffffff;
-
-    --color-danger: #fb7185;
-    --color-danger-light: #3a1620;
-
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3);
-    --shadow-nav: 0 -2px 16px rgba(0, 0, 0, 0.35);
-
-    color-scheme: dark;
-  }
-}
-
-html,
-body {
+/* ── Base reset ──────────────────────────────────────────── */
+html, body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -73,26 +99,38 @@ body {
 
 body {
   font-family: var(--font-sans);
-  background: var(--color-bg);
+  background: var(--color-background);
   color: var(--color-text);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
-  /* Keeps content clear of side/top notches when installed as a mobile PWA.
-     Bottom inset is handled locally by the fixed bottom-nav (app.component.scss)
-     instead of here, so it isn't applied twice. */
   padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
 }
 
-button,
-input,
-textarea,
-select {
+button, input, textarea, select {
   font-family: inherit;
   color: inherit;
 }
 
+/* ── Material Symbols base ───────────────────────────────── */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+}
+
+.material-symbols-outlined.filled {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ── Custom scrollbar ────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(112, 121, 115, 0.25);
+  border-radius: var(--radius-pill);
+}
+
 ::selection {
-  background: var(--color-primary-light);
-  color: var(--color-primary-dark);
+  background: var(--color-primary-fixed);
+  color: var(--color-primary);
 }

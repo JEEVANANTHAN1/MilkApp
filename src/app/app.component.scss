@@ -1,61 +1,129 @@
 .app-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--color-background);
 }
 
+/* ── Top App Bar ─────────────────────────────────────────── */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-md);
+  height: 56px;
+  background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid transparent;
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-primary);
+  }
+}
+
+/* ── Icon button ────────────────────────────────────────── */
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--color-primary-container) 15%, transparent);
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  .material-symbols-outlined {
+    font-size: 24px;
+  }
+}
+
+/* ── Page content ─────────────────────────────────────────── */
 .page-content {
   flex: 1;
-  /* Clears the fixed bottom-nav so the last bit of scrolled content isn't hidden behind it */
-  padding-bottom: calc(68px + env(safe-area-inset-bottom) + 16px);
+  /* Reserve space for fixed bottom nav */
+  padding-bottom: calc(64px + env(safe-area-inset-bottom) + 16px);
 }
 
+/* ── Bottom Navigation ────────────────────────────────────── */
 .bottom-nav {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 50;
+  height: 64px;
   display: flex;
-  gap: 4px;
-  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
-  backdrop-filter: saturate(180%) blur(14px);
-  -webkit-backdrop-filter: saturate(180%) blur(14px);
-  border-top: 1px solid var(--color-border);
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 8px env(safe-area-inset-bottom);
+  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  backdrop-filter: saturate(200%) blur(20px);
+  -webkit-backdrop-filter: saturate(200%) blur(20px);
   box-shadow: var(--shadow-nav);
-  padding: 6px 8px env(safe-area-inset-bottom);
 
-  a {
+  &__item {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 2px;
-    min-height: 56px;
-    padding: 0.4rem 0;
+    height: 100%;
     text-decoration: none;
-    color: var(--color-text-muted);
-    font-size: 0.7rem;
-    font-weight: 500;
+    color: var(--color-on-surface-variant);
     border-radius: var(--radius-md);
-    transition: color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
-
-    .icon {
-      font-size: 1.15rem;
-      transition: transform 0.15s ease;
-    }
+    transition: color 0.15s ease, transform 0.15s ease;
 
     &:active {
-      transform: scale(0.94);
+      transform: scale(0.88);
     }
 
     &.active {
-      color: var(--color-primary-dark);
-      background: var(--color-primary-light);
+      color: var(--color-primary);
 
-      .icon {
-        transform: translateY(-1px);
+      .bottom-nav__icon {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+
+      /* Active dot indicator */
+      &::after {
+        content: '';
+        display: block;
+        width: 4px;
+        height: 4px;
+        border-radius: var(--radius-pill);
+        background: var(--color-primary);
+        margin-top: 2px;
       }
     }
+  }
+
+  &__icon {
+    font-size: 24px;
+    transition: font-variation-settings 0.15s ease;
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
   }
 }
