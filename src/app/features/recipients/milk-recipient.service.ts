@@ -6,11 +6,26 @@ import { MilkRecipient } from './models/milk-recipient.model';
 
 const STORAGE_KEY = 'milk_recipients_master';
 
+function generateUuid(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+function isValidGuid(id: string): boolean {
+  return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
+}
+
 const DEFAULT_RECIPIENTS: MilkRecipient[] = [
-  { id: 'rec-1', name: 'Milkymist Society', status: 'Active', createdAt: new Date().toISOString() },
-  { id: 'rec-2', name: 'Mani', status: 'Active', createdAt: new Date().toISOString() },
-  { id: 'rec-3', name: 'Kumar', status: 'Active', createdAt: new Date().toISOString() },
-  { id: 'rec-4', name: 'Local Milk Shop', status: 'Active', createdAt: new Date().toISOString() },
+  { id: '11111111-1111-1111-1111-111111111111', name: 'Milkymist Society', status: 'Active', createdAt: new Date().toISOString() },
+  { id: '22222222-2222-2222-2222-222222222222', name: 'Mani', status: 'Active', createdAt: new Date().toISOString() },
+  { id: '33333333-3333-3333-3333-333333333333', name: 'Kumar', status: 'Active', createdAt: new Date().toISOString() },
+  { id: '44444444-4444-4444-4444-444444444444', name: 'Local Milk Shop', status: 'Active', createdAt: new Date().toISOString() },
 ];
 
 @Injectable({ providedIn: 'root' })
@@ -67,7 +82,7 @@ export class MilkRecipientService {
     if (!trimmed) throw new Error('Recipient name cannot be empty');
 
     const newRecipient: MilkRecipient = {
-      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `rec-${Date.now()}`,
+      id: generateUuid(),
       name: trimmed,
       status,
       createdAt: new Date().toISOString(),
@@ -111,7 +126,7 @@ export class MilkRecipientService {
     );
     this.saveLocalCache(this.recipients());
 
-    if (updated) {
+    if (updated && isValidGuid(id)) {
       try {
         await firstValueFrom(this.http.put<void>(`${this.apiUrl}/${id}`, updated));
       } catch (err) {
@@ -133,7 +148,11 @@ export class MilkRecipientService {
   private loadLocalCache(): MilkRecipient[] {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      if (!raw) return [];
+      const list: MilkRecipient[] = JSON.parse(raw);
+      // Filter out any stale non-UUID items from previous dev builds
+      const validList = list.filter((item) => isValidGuid(item.id));
+      return validList;
     } catch {
       return [];
     }
