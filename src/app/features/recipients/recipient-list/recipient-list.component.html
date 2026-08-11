@@ -1,0 +1,147 @@
+<div class="recipient-page">
+
+  <!-- Header -->
+  <section class="recipient-page__header">
+    <div>
+      <h2 class="recipient-page__title">Milk Recipients</h2>
+      <p class="recipient-page__subtitle">Manage societies, buyers & shops</p>
+    </div>
+
+    <!-- Search & Add Bar -->
+    <div class="search-bar">
+      <div class="search-bar__input-wrap">
+        <span class="material-symbols-outlined search-bar__icon">search</span>
+        <input
+          class="search-bar__input"
+          type="text"
+          placeholder="Search recipients…"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          aria-label="Search recipients"
+        />
+      </div>
+      <button class="search-bar__add-btn" (click)="openAddForm()" aria-label="Add new recipient">
+        <span class="material-symbols-outlined">add</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Add / Edit Form Modal Card -->
+  @if (isFormOpen()) {
+    <div class="form-modal-overlay" (click)="cancelForm()">
+      <div class="form-card" (click)="$event.stopPropagation()">
+        <div class="form-card__header">
+          <h3 class="form-card__title">
+            {{ editingId() ? 'Edit Recipient' : 'Add New Recipient' }}
+          </h3>
+          <button class="icon-btn" (click)="cancelForm()" aria-label="Close">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <form (ngSubmit)="saveRecipient()">
+          <!-- Name field -->
+          <div class="field">
+            <label class="field__label" for="recipient_name">Recipient Name</label>
+            <input
+              id="recipient_name"
+              class="field__input"
+              type="text"
+              placeholder="e.g. Milkymist Society, Mani, Local Milk Shop"
+              [ngModel]="nameInput()"
+              (ngModelChange)="nameInput.set($event)"
+              name="recipientName"
+              required
+              autofocus
+            />
+          </div>
+
+          <!-- Status toggle -->
+          <div class="field">
+            <span class="field__label">Status</span>
+            <div class="status-toggle" role="group">
+              <button
+                type="button"
+                class="status-btn"
+                [class.status-btn--active]="statusInput() === 'Active'"
+                (click)="statusInput.set('Active')">
+                <span class="status-dot status-dot--active"></span> Active
+              </button>
+              <button
+                type="button"
+                class="status-btn"
+                [class.status-btn--inactive]="statusInput() === 'Inactive'"
+                (click)="statusInput.set('Inactive')">
+                <span class="status-dot status-dot--inactive"></span> Inactive
+              </button>
+            </div>
+          </div>
+
+          @if (formError(); as err) {
+            <p class="error-msg">
+              <span class="material-symbols-outlined">error</span>
+              {{ err }}
+            </p>
+          }
+
+          <div class="form-card__actions">
+            <button type="button" class="btn btn--secondary" (click)="cancelForm()">Cancel</button>
+            <button type="submit" class="btn btn--primary" [disabled]="!nameInput().trim() || isSaving()">
+              <span class="material-symbols-outlined">save</span>
+              {{ isSaving() ? 'Saving…' : 'Save Recipient' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Recipient Master List -->
+  <section class="recipient-list" aria-label="Recipients Master List">
+    @if (filteredRecipients().length === 0) {
+      <div class="empty-state">
+        <span class="material-symbols-outlined empty-state__icon">group_off</span>
+        <p class="empty-state__text">
+          {{ searchQuery() ? 'No recipients match "' + searchQuery() + '"' : 'No recipients added yet.' }}
+        </p>
+        <button class="btn btn--primary" (click)="openAddForm()">
+          <span class="material-symbols-outlined">add</span>
+          Add Recipient
+        </button>
+      </div>
+    } @else {
+      @for (recipient of filteredRecipients(); track recipient.id) {
+        <article class="recipient-card" [class.recipient-card--inactive]="recipient.status === 'Inactive'">
+          <div class="recipient-card__left">
+            <div class="recipient-card__avatar" [class.recipient-card__avatar--inactive]="recipient.status === 'Inactive'">
+              <span class="material-symbols-outlined">storefront</span>
+            </div>
+            <div class="recipient-card__info">
+              <h3 class="recipient-card__name">{{ recipient.name }}</h3>
+              <span class="badge" [class.badge--active]="recipient.status === 'Active'" [class.badge--inactive]="recipient.status === 'Inactive'">
+                {{ recipient.status }}
+              </span>
+            </div>
+          </div>
+
+          <div class="recipient-card__actions">
+            <!-- Toggle Status button -->
+            <button
+              class="action-btn"
+              [title]="recipient.status === 'Active' ? 'Deactivate Recipient' : 'Activate Recipient'"
+              (click)="toggleStatus(recipient.id, $event)">
+              <span class="material-symbols-outlined">
+                {{ recipient.status === 'Active' ? 'toggle_on' : 'toggle_off' }}
+              </span>
+            </button>
+            <!-- Edit button -->
+            <button class="action-btn" title="Edit Recipient" (click)="startEdit(recipient, $event)">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+          </div>
+        </article>
+      }
+    }
+  </section>
+
+</div>

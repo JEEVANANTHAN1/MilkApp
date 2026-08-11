@@ -57,6 +57,24 @@
         />
       </div>
 
+      <!-- Recipient Dropdown -->
+      <div class="field">
+        <label class="field__label" for="recipient_select">Recipient *</label>
+        <select
+          id="recipient_select"
+          class="field__input field__select"
+          [ngModel]="recipientId()"
+          (ngModelChange)="updateRecipientId($event)"
+          name="recipientId"
+          required
+        >
+          <option value="" disabled selected>-- Select Milk Recipient --</option>
+          @for (rec of activeRecipients(); track rec.id) {
+            <option [value]="rec.id">{{ rec.name }}</option>
+          }
+        </select>
+      </div>
+
       <!-- Session toggle -->
       <div class="field">
         <span class="field__label">Session</span>

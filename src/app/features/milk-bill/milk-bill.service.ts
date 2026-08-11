@@ -132,6 +132,7 @@ export class MilkBillService {
     formData.append('totalAmount', String(draft.totalAmount));
     formData.append('fatPercent', String(draft.fatPercent ?? 0));
     if (draft.vendorName) formData.append('vendorName', draft.vendorName);
+    if (draft.recipientId) formData.append('recipientId', draft.recipientId);
     if (draft.snfPercent != null) formData.append('snfPercent', String(draft.snfPercent));
     if (draft.memberCode) formData.append('memberCode', draft.memberCode);
     if (draft.memberName) formData.append('memberName', draft.memberName);

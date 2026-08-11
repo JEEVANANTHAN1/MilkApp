@@ -1,0 +1,366 @@
+.recipient-page {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: 600px;
+  margin: 0 auto;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--color-primary);
+    letter-spacing: -0.02em;
+  }
+
+  &__subtitle {
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant);
+    margin: 4px 0 0;
+  }
+}
+
+/* ── Search & Add Bar ──────────────────────────────────────── */
+.search-bar {
+  display: flex;
+  gap: var(--space-xs);
+
+  &__input-wrap {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__icon {
+    position: absolute;
+    left: 12px;
+    font-size: 20px;
+    color: var(--color-outline);
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    height: 44px;
+    padding: 0 12px 0 40px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-outline-variant);
+    background: var(--color-surface-container-low);
+    font-size: 0.9rem;
+    outline: none;
+
+    &:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 20%, transparent);
+    }
+  }
+
+  &__add-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-pill);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+
+    &:active {
+      transform: scale(0.92);
+    }
+  }
+}
+
+/* ── Form Modal Card ───────────────────────────────────────── */
+.form-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(9, 27, 54, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+}
+
+.form-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-surface-container-lowest);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--space-xs);
+    margin-top: var(--space-sm);
+  }
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-outline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+
+  &:hover {
+    background: var(--color-surface-container);
+  }
+}
+
+/* ── Form Fields ───────────────────────────────────────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--space-sm);
+
+  &__label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-on-surface-variant);
+  }
+
+  &__input {
+    height: 42px;
+    padding: 0 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-outline-variant);
+    font-size: 0.9rem;
+    outline: none;
+
+    &:focus {
+      border-color: var(--color-primary);
+    }
+  }
+}
+
+.status-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.status-btn {
+  flex: 1;
+  height: 38px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-low);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+
+  &--active {
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  &--inactive {
+    background: color-mix(in srgb, var(--color-outline) 15%, transparent);
+    border-color: var(--color-outline);
+    color: var(--color-outline);
+  }
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+
+  &--active { background: #16a34a; }
+  &--inactive { background: #9ca3af; }
+}
+
+.error-msg {
+  color: var(--color-error);
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 4px 0 0;
+}
+
+/* ── Recipient Cards ───────────────────────────────────────── */
+.recipient-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.recipient-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-container-lowest);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-xs);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+
+  &--inactive {
+    opacity: 0.7;
+    background: var(--color-surface-container-low);
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  &__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-pill);
+    background: var(--color-primary-container);
+    color: var(--color-on-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--inactive {
+      background: var(--color-outline-variant);
+      color: var(--color-on-surface-variant);
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-on-surface);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  width: fit-content;
+
+  &--active {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  &--inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+  }
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--color-surface-container);
+    color: var(--color-primary);
+  }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+
+  &--primary {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+
+  &--secondary {
+    background: var(--color-surface-container-high);
+    color: var(--color-on-surface);
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+  gap: var(--space-sm);
+
+  &__icon {
+    font-size: 48px;
+    color: var(--color-outline);
+  }
+
+  &__text {
+    font-size: 0.9rem;
+    color: var(--color-on-surface-variant);
+    margin: 0;
+  }
+}

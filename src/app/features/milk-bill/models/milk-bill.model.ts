@@ -9,6 +9,8 @@ export interface MilkBill {
   totalAmount: number;
   /** Name of the dairy/collection center printed on the slip (e.g. "RADHA MILK DAIRY") */
   vendorName?: string;
+  /** Master record ID of the selected milk recipient */
+  recipientId?: string;
   /** Fat % reading from a dairy collection-center slip */
   fatPercent?: number;
   /** SNF (solids-not-fat) % reading from a dairy collection-center slip */

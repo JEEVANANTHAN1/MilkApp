@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { MilkBillService } from '../milk-bill.service';
 import { MilkBillDraft } from '../models/milk-bill.model';
 
+import { MilkRecipientService } from '../../recipients/milk-recipient.service';
+
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
@@ -23,6 +25,7 @@ function defaultShift(): 'Morning' | 'Evening' {
 })
 export class MilkBillFormComponent {
   private readonly milkBillService = inject(MilkBillService);
+  protected readonly recipientService = inject(MilkRecipientService);
   private readonly router = inject(Router);
 
   /** Local base64 preview only — never sent to the server */
@@ -32,6 +35,8 @@ export class MilkBillFormComponent {
   billDate = signal<string>(todayIso());
   /** Morning/Evening — auto-defaults by time of day but the user can change it manually */
   shift = signal<'Morning' | 'Evening'>(defaultShift());
+  /** Master record ID of selected milk recipient */
+  recipientId = signal<string>('');
   quantityLiters = signal<number | null>(null);
   ratePerLiter = signal<number | null>(null);
   totalAmountOverride = signal<number | null>(null);
@@ -44,6 +49,9 @@ export class MilkBillFormComponent {
 
   isSaving = signal(false);
   errorMessage = signal<string | null>(null);
+
+  /** Active recipients list for dropdown selection */
+  activeRecipients = this.recipientService.activeRecipients;
 
   computedTotal = computed(() => {
     const qty = this.quantityLiters();
@@ -61,7 +69,8 @@ export class MilkBillFormComponent {
       this.quantityLiters()! > 0 &&
       this.ratePerLiter() != null &&
       this.ratePerLiter()! > 0 &&
-      !!this.billDate()
+      !!this.billDate() &&
+      !!this.recipientId()
     );
   });
 
@@ -84,6 +93,14 @@ export class MilkBillFormComponent {
   clearImage(): void {
     this.imagePreviewUrl.set(null);
     this.selectedImageFile.set(null);
+  }
+
+  updateRecipientId(value: string): void {
+    this.recipientId.set(value);
+    const selected = this.activeRecipients().find((r) => r.id === value);
+    if (selected && !this.vendorName()) {
+      this.vendorName.set(selected.name);
+    }
   }
 
   updateBillDate(value: string): void {
@@ -132,13 +149,17 @@ export class MilkBillFormComponent {
     this.isSaving.set(true);
     this.errorMessage.set(null);
 
+    const selectedRecipient = this.activeRecipients().find((r) => r.id === this.recipientId());
+    const resolvedVendorName = this.vendorName().trim() || selectedRecipient?.name;
+
     const draft: MilkBillDraft = {
       billDate: this.billDate(),
       shift: this.shift(),
       quantityLiters: this.quantityLiters()!,
       ratePerLiter: this.ratePerLiter()!,
       totalAmount: this.effectiveTotal()!,
-      vendorName: this.vendorName().trim() || undefined,
+      recipientId: this.recipientId() || undefined,
+      vendorName: resolvedVendorName || undefined,
       fatPercent: this.fatPercent() ?? undefined,
       snfPercent: this.snfPercent() ?? undefined,
       memberCode: this.memberCode().trim() || undefined,
