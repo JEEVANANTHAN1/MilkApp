@@ -1,0 +1,68 @@
+<div class="loading-overlay" [class.loading-overlay--error]="milkBillService.errorMessage()">
+  <div class="loading-container">
+
+    <!-- Agro-Fresh Animated Hero Badge -->
+    <div class="hero-badge">
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring pulse-ring--delayed"></div>
+      <div class="hero-badge__icon-box">
+        <span class="material-symbols-outlined hero-badge__icon">agriculture</span>
+      </div>
+    </div>
+
+    <!-- App Title & Tagline -->
+    <h1 class="brand-title">MilkApp</h1>
+    <p class="brand-subtitle">Dairy Slip & Collection Tracker</p>
+
+    <!-- Error State Card -->
+    @if (milkBillService.errorMessage(); as errorMsg) {
+      <div class="error-card">
+        <span class="material-symbols-outlined error-card__icon">cloud_off</span>
+        <h3 class="error-card__title">Connection Delay</h3>
+        <p class="error-card__msg">{{ errorMsg }}</p>
+        <div class="error-card__actions">
+          <button class="btn btn--primary" (click)="retry()">
+            <span class="material-symbols-outlined">refresh</span>
+            Retry Connection
+          </button>
+          <button class="btn btn--secondary" (click)="continueOffline()">
+            <span class="material-symbols-outlined">work_off</span>
+            Continue Offline
+          </button>
+        </div>
+      </div>
+    } @else {
+
+      <!-- Dynamic Status & Live Progress -->
+      <div class="status-box">
+        <p class="status-msg">
+          {{ milkBillService.statusMessage() }}
+        </p>
+
+        <!-- Progress Bar & Details -->
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" [style.width.%]="progressPercent()"></div>
+        </div>
+
+        <div class="time-meta">
+          <span class="time-meta__percent">{{ progressPercent() }}%</span>
+          <span class="time-meta__elapsed">
+            <span class="material-symbols-outlined time-meta__icon">timer</span>
+            Elapsed: {{ milkBillService.elapsedSeconds() }}s / ~50s
+          </span>
+        </div>
+      </div>
+
+      <!-- Informational Callout (Explaining Render Cold-Start) -->
+      <div class="info-card">
+        <span class="material-symbols-outlined info-card__icon">info</span>
+        <div class="info-card__content">
+          <strong>Waking up Render Server</strong>
+          <p>The backend spins down after inactivity on Render free tier. Initial start takes up to ~50 seconds.</p>
+        </div>
+      </div>
+
+    }
+
+  </div>
+</div>

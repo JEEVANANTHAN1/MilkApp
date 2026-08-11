@@ -1,4 +1,8 @@
 <div class="app-shell">
+  @if (milkBillService.isLoading() || milkBillService.errorMessage()) {
+    <app-initial-loading-screen />
+  }
+
   <!-- ── Top App Bar ─────────────────────────────────── -->
   <header class="top-bar">
     <button class="icon-btn" aria-label="Menu">
