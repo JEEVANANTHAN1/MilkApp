@@ -4,6 +4,19 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { MilkBill, MilkBillDraft } from './models/milk-bill.model';
 
+const STORAGE_KEY = 'milk_bills_cache';
+
+function generateUuid(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export type LoadingStage = 'pinging' | 'waking' | 'connecting' | 'fetching' | 'ready' | 'error' | 'offline';
 
 @Injectable({ providedIn: 'root' })
@@ -39,6 +52,10 @@ export class MilkBillService {
   );
 
   constructor() {
+    const cached = this.loadLocalBills();
+    if (cached.length > 0) {
+      this.bills.set(cached);
+    }
     this.loadAll();
   }
 
@@ -55,21 +72,26 @@ export class MilkBillService {
       // First attempt fetching bills (will trigger Render wake-up)
       const all = await firstValueFrom(this.http.get<MilkBill[]>(this.apiUrl));
       this.bills.set(all);
+      this.saveLocalBills(all);
       this.stage.set('ready');
       this.isOffline.set(false);
     } catch (err: any) {
       console.warn('Initial load failed, trying health endpoint retry...', err);
-      // Attempt quick retry via health or bills if initial cold-start connection was interrupted
       try {
         const all = await firstValueFrom(this.http.get<MilkBill[]>(this.apiUrl));
         this.bills.set(all);
+        this.saveLocalBills(all);
         this.stage.set('ready');
         this.isOffline.set(false);
       } catch (retryErr: any) {
-        this.stage.set('error');
-        this.errorMsg.set(
-          retryErr?.message || 'Server spin-up timed out or backend is currently unreachable.'
-        );
+        if (this.bills().length > 0) {
+          this.useOfflineMode();
+        } else {
+          this.stage.set('error');
+          this.errorMsg.set(
+            retryErr?.message || 'Server spin-up timed out or backend is currently unreachable.'
+          );
+        }
       }
     } finally {
       this.stopTimer();
@@ -99,7 +121,6 @@ export class MilkBillService {
       const currentSec = this.elapsedSec() + 1;
       this.elapsedSec.set(currentSec);
 
-      // Dynamically update status message based on Render cold-start timeline (~50s)
       if (currentSec <= 10) {
         this.stage.set('pinging');
         this.statusMsg.set('Starting up server…');
@@ -110,8 +131,12 @@ export class MilkBillService {
         this.stage.set('fetching');
         this.statusMsg.set('Loading collection records…');
       } else if (currentSec > 70 && this.loading()) {
-        this.stage.set('error');
-        this.errorMsg.set('Server response taking longer than expected.');
+        if (this.bills().length > 0) {
+          this.useOfflineMode();
+        } else {
+          this.stage.set('error');
+          this.errorMsg.set('Server response taking longer than expected.');
+        }
       }
     }, 1000);
   }
@@ -139,9 +164,26 @@ export class MilkBillService {
     if (draft.notes) formData.append('notes', draft.notes);
     if (imageFile) formData.append('image', imageFile);
 
-    const created = await firstValueFrom(this.http.post<MilkBill>(this.apiUrl, formData));
-    this.bills.update((current) => [...current, created]);
-    return created;
+    if (!this.isOfflineMode()) {
+      try {
+        const created = await firstValueFrom(this.http.post<MilkBill>(this.apiUrl, formData));
+        this.bills.update((current) => [...current, created]);
+        this.saveLocalBills(this.bills());
+        return created;
+      } catch (err) {
+        console.warn('Backend save failed, saving bill locally as fallback...', err);
+      }
+    }
+
+    // Fallback: save locally
+    const fallbackCreated: MilkBill = {
+      id: generateUuid(),
+      ...draft,
+      createdAt: new Date().toISOString(),
+    };
+    this.bills.update((current) => [...current, fallbackCreated]);
+    this.saveLocalBills(this.bills());
+    return fallbackCreated;
   }
 
   async updateBill(id: string, draft: MilkBillDraft, imageFile: File | null): Promise<MilkBill> {
@@ -160,9 +202,30 @@ export class MilkBillService {
     if (draft.notes) formData.append('notes', draft.notes);
     if (imageFile) formData.append('image', imageFile);
 
-    const updated = await firstValueFrom(this.http.put<MilkBill>(`${this.apiUrl}/${id}`, formData));
-    this.bills.update((current) => current.map((b) => (b.id === id ? updated : b)));
-    return updated;
+    if (!this.isOfflineMode()) {
+      try {
+        const updated = await firstValueFrom(this.http.put<MilkBill>(`${this.apiUrl}/${id}`, formData));
+        this.bills.update((current) => current.map((b) => (b.id === id ? updated : b)));
+        this.saveLocalBills(this.bills());
+        return updated;
+      } catch (err) {
+        console.warn('Backend update failed, updating bill locally as fallback...', err);
+      }
+    }
+
+    // Fallback: update locally
+    let fallbackUpdated: MilkBill | undefined;
+    this.bills.update((current) =>
+      current.map((b) => {
+        if (b.id === id) {
+          fallbackUpdated = { ...b, ...draft };
+          return fallbackUpdated;
+        }
+        return b;
+      })
+    );
+    this.saveLocalBills(this.bills());
+    return fallbackUpdated || { id, ...draft, createdAt: new Date().toISOString() };
   }
 
   getBillById(id: string): MilkBill | undefined {
@@ -170,7 +233,32 @@ export class MilkBillService {
   }
 
   async deleteBill(id: string): Promise<void> {
-    await firstValueFrom(this.http.delete<void>(`${this.apiUrl}/${id}`));
+    if (!this.isOfflineMode()) {
+      try {
+        await firstValueFrom(this.http.delete<void>(`${this.apiUrl}/${id}`));
+      } catch (err) {
+        console.warn('Backend delete failed, deleting bill locally...', err);
+      }
+    }
     this.bills.update((current) => current.filter((b) => b.id !== id));
+    this.saveLocalBills(this.bills());
+  }
+
+  private loadLocalBills(): MilkBill[] {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+
+  private saveLocalBills(list: MilkBill[]): void {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    } catch (err) {
+      console.warn('Could not save bills to localStorage', err);
+    }
   }
 }
