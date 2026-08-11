@@ -20,6 +20,20 @@
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-bottom: 1px solid transparent;
 
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  &__logo {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    box-shadow: 0 2px 6px rgba(0, 33, 20, 0.15);
+  }
+
   &__title {
     font-size: 1.25rem;
     font-weight: 700;
