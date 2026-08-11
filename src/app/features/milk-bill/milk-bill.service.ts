@@ -48,7 +48,7 @@ export class MilkBillService {
     this.errorMsg.set(null);
     this.stage.set('pinging');
     this.elapsedSec.set(0);
-    this.statusMsg.set('⚡ Contacting Render backend service...');
+    this.statusMsg.set('Starting up server…');
     this.startTimer();
 
     try {
@@ -100,21 +100,18 @@ export class MilkBillService {
       this.elapsedSec.set(currentSec);
 
       // Dynamically update status message based on Render cold-start timeline (~50s)
-      if (currentSec <= 8) {
+      if (currentSec <= 10) {
         this.stage.set('pinging');
-        this.statusMsg.set('⚡ Contacting Render backend service...');
-      } else if (currentSec <= 25) {
+        this.statusMsg.set('Starting up server…');
+      } else if (currentSec <= 35) {
         this.stage.set('waking');
-        this.statusMsg.set('🥛 Waking up backend container (Free Tier cold-start ~50s)...');
-      } else if (currentSec <= 45) {
-        this.stage.set('connecting');
-        this.statusMsg.set('🗄️ Initializing Supabase database connection...');
+        this.statusMsg.set('Waking backend service…');
       } else if (currentSec <= 65) {
         this.stage.set('fetching');
-        this.statusMsg.set('🚀 Server is live! Fetching milk deposit records...');
+        this.statusMsg.set('Loading collection records…');
       } else if (currentSec > 70 && this.loading()) {
         this.stage.set('error');
-        this.errorMsg.set('Server takes longer than expected (~70s). Check network or click Retry.');
+        this.errorMsg.set('Server response taking longer than expected.');
       }
     }, 1000);
   }
