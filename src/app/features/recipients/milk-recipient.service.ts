@@ -158,6 +158,29 @@ export class MilkRecipientService {
     }
   }
 
+  async getRecipientById(id: string): Promise<MilkRecipient | null> {
+    if (isValidGuid(id)) {
+      try {
+        return await firstValueFrom(this.http.get<MilkRecipient>(`${this.apiUrl}/${id}`));
+      } catch {
+        // Fallback to local cache
+      }
+    }
+    return this.recipients().find((r) => r.id === id) || null;
+  }
+
+  async getRecipientSummary(id: string, month?: string): Promise<any | null> {
+    if (isValidGuid(id)) {
+      try {
+        const query = month ? `?month=${month}` : '';
+        return await firstValueFrom(this.http.get<any>(`${this.apiUrl}/${id}/summary${query}`));
+      } catch {
+        // Fallback handled in component
+      }
+    }
+    return null;
+  }
+
   private loadLocalCache(): MilkRecipient[] {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
