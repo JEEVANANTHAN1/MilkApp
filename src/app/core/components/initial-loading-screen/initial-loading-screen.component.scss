@@ -5,13 +5,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 50% 40%, #d1fee5 0%, #e8fff0 75%);
+  background: radial-gradient(circle at 50% 45%, #13458e 0%, #0c3674 60%, #07234d 100%);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   animation: fadeIn 0.3s ease-out;
 
   &--error {
-    background: radial-gradient(circle at 50% 40%, #ffdad6 0%, #e8fff0 85%);
+    background: radial-gradient(circle at 50% 45%, #591b1b 0%, #0c3674 85%);
   }
 }
 
@@ -20,14 +20,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 28px;
+  gap: 32px;
 }
 
 /* ── App Logo Badge ────────────────────────────────────────── */
 .logo-wrapper {
   position: relative;
-  width: 96px;
-  height: 96px;
+  width: 104px;
+  height: 104px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -36,20 +36,20 @@
 .app-logo {
   position: relative;
   z-index: 2;
-  width: 88px;
-  height: 88px;
+  width: 96px;
+  height: 96px;
   border-radius: var(--radius-lg);
   object-fit: cover;
-  box-shadow: 0 8px 24px rgba(15, 82, 56, 0.25);
-  border: 3px solid #ffffff;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  border: 3px solid rgba(255, 255, 255, 0.9);
   animation: floatBounce 3s infinite ease-in-out;
 }
 
 .pulse-ring {
   position: absolute;
-  inset: -10px;
+  inset: -12px;
   border-radius: var(--radius-pill);
-  border: 2px solid var(--color-primary);
+  border: 2px solid rgba(255, 255, 255, 0.6);
   opacity: 0;
   animation: pulse 2.5s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
 
@@ -58,12 +58,12 @@
   }
 }
 
-/* ── Minimal Spinner ───────────────────────────────────────── */
+/* ── Minimal White Spinner ─────────────────────────────────── */
 .spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
-  border-top-color: var(--color-primary);
+  width: 34px;
+  height: 34px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #ffffff;
   border-radius: var(--radius-pill);
   animation: spin 0.8s linear infinite;
 }
@@ -80,7 +80,7 @@
   &__msg {
     margin: 0;
     font-size: 0.85rem;
-    color: var(--color-on-surface-variant);
+    color: rgba(255, 255, 255, 0.85);
   }
 
   &__actions {
@@ -105,13 +105,13 @@
   }
 
   &--primary {
-    background: var(--color-primary);
-    color: var(--color-on-primary);
+    background: #ffffff;
+    color: #0c3674;
   }
 
   &--secondary {
-    background: var(--color-surface-container-high);
-    color: var(--color-on-surface);
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
   }
 }
 

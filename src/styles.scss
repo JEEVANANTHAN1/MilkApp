@@ -9,40 +9,40 @@
 }
 
 :root {
-  /* ── Color palette ─────────────────────────────────────── */
-  --color-primary:              #0f5238;
-  --color-primary-container:    #2d6a4f;
+  /* ── Color palette (matched to logo.jpg Royal Navy & Cream palette) ── */
+  --color-primary:              #0e3b7e;
+  --color-primary-container:    #184b96;
   --color-on-primary:           #ffffff;
-  --color-on-primary-container: #a8e7c5;
-  --color-primary-fixed:        #b1f0ce;
-  --color-primary-fixed-dim:    #95d4b3;
+  --color-on-primary-container: #d6e4f7;
+  --color-primary-fixed:        #c5dbf8;
+  --color-primary-fixed-dim:    #9ec2f3;
 
-  --color-secondary:            #5c5f60;
-  --color-secondary-container:  #e1e3e4;
+  --color-secondary:            #536278;
+  --color-secondary-container:  #dbed;
   --color-on-secondary:         #ffffff;
 
-  --color-surface:              #e8fff0;
-  --color-surface-dim:          #b8e4cc;
-  --color-surface-bright:       #e8fff0;
-  --color-surface-container:          #ccf8df;
-  --color-surface-container-low:      #d1fee5;
-  --color-surface-container-high:     #c6f2da;
-  --color-surface-container-highest:  #c1ecd4;
+  --color-surface:              #f0f5fc;
+  --color-surface-dim:          #dbe5f5;
+  --color-surface-bright:       #f8fafc;
+  --color-surface-container:          #e4ecf7;
+  --color-surface-container-low:      #eef4fb;
+  --color-surface-container-high:     #d8e4f5;
+  --color-surface-container-highest:  #cbdcf2;
   --color-surface-container-lowest:   #ffffff;
-  --color-surface-variant:      #c1ecd4;
-  --color-surface-tint:         #2c694e;
+  --color-surface-variant:      #d4e2f5;
+  --color-surface-tint:         #164993;
 
-  --color-on-surface:           #002114;
-  --color-on-surface-variant:   #404943;
-  --color-on-background:        #002114;
-  --color-background:           #e8fff0;
+  --color-on-surface:           #091b36;
+  --color-on-surface-variant:   #3c4b64;
+  --color-on-background:        #091b36;
+  --color-background:           #f0f5fc;
 
-  --color-inverse-surface:      #0e3727;
-  --color-inverse-on-surface:   #cffbe2;
-  --color-inverse-primary:      #95d4b3;
+  --color-inverse-surface:      #0a2958;
+  --color-inverse-on-surface:   #e1ebf8;
+  --color-inverse-primary:      #9ec2f3;
 
-  --color-outline:              #707973;
-  --color-outline-variant:      #bfc9c1;
+  --color-outline:              #6d7d96;
+  --color-outline-variant:      #c0cee3;
 
   --color-error:                #ba1a1a;
   --color-on-error:             #ffffff;
