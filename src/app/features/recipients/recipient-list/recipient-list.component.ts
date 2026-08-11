@@ -85,4 +85,11 @@ export class RecipientListComponent {
     if (event) event.stopPropagation();
     await this.recipientService.toggleStatus(id);
   }
+
+  async deleteRecipient(id: string, name: string, event?: MouseEvent): Promise<void> {
+    if (event) event.stopPropagation();
+    if (confirm(`Are you sure you want to delete recipient "${name}"?`)) {
+      await this.recipientService.deleteRecipient(id);
+    }
+  }
 }

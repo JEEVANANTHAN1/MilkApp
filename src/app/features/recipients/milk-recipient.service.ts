@@ -145,6 +145,19 @@ export class MilkRecipientService {
     await this.updateRecipient(id, current.name, newStatus);
   }
 
+  async deleteRecipient(id: string): Promise<void> {
+    this.recipients.update((current) => current.filter((r) => r.id !== id));
+    this.saveLocalCache(this.recipients());
+
+    if (isValidGuid(id)) {
+      try {
+        await firstValueFrom(this.http.delete<void>(`${this.apiUrl}/${id}`));
+      } catch (err) {
+        console.warn('Could not sync deleted recipient to backend, deleted locally.', err);
+      }
+    }
+  }
+
   private loadLocalCache(): MilkRecipient[] {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);

@@ -320,6 +320,11 @@
     background: var(--color-surface-container);
     color: var(--color-primary);
   }
+
+  &--danger:hover {
+    background: var(--color-error-container);
+    color: var(--color-error);
+  }
 }
 
 .btn {

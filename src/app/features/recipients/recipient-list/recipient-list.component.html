@@ -138,6 +138,10 @@
             <button class="action-btn" title="Edit Recipient" (click)="startEdit(recipient, $event)">
               <span class="material-symbols-outlined">edit</span>
             </button>
+            <!-- Delete button -->
+            <button class="action-btn action-btn--danger" title="Delete Recipient" (click)="deleteRecipient(recipient.id, recipient.name, $event)">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
           </div>
         </article>
       }
