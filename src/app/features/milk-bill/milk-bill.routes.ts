@@ -26,4 +26,9 @@ export const MILK_BILL_ROUTES: Routes = [
     loadComponent: () =>
       import('./milk-bill-form/milk-bill-form.component').then((m) => m.MilkBillFormComponent),
   },
+  {
+    path: 'edit/:id',
+    loadComponent: () =>
+      import('./milk-bill-form/milk-bill-form.component').then((m) => m.MilkBillFormComponent),
+  },
 ];

@@ -144,6 +144,31 @@ export class MilkBillService {
     return created;
   }
 
+  async updateBill(id: string, draft: MilkBillDraft, imageFile: File | null): Promise<MilkBill> {
+    const formData = new FormData();
+    formData.append('billDate', draft.billDate);
+    formData.append('shift', draft.shift);
+    formData.append('quantityLiters', String(draft.quantityLiters));
+    formData.append('ratePerLiter', String(draft.ratePerLiter));
+    formData.append('totalAmount', String(draft.totalAmount));
+    formData.append('fatPercent', String(draft.fatPercent ?? 0));
+    if (draft.vendorName) formData.append('vendorName', draft.vendorName);
+    if (draft.recipientId) formData.append('recipientId', draft.recipientId);
+    if (draft.snfPercent != null) formData.append('snfPercent', String(draft.snfPercent));
+    if (draft.memberCode) formData.append('memberCode', draft.memberCode);
+    if (draft.memberName) formData.append('memberName', draft.memberName);
+    if (draft.notes) formData.append('notes', draft.notes);
+    if (imageFile) formData.append('image', imageFile);
+
+    const updated = await firstValueFrom(this.http.put<MilkBill>(`${this.apiUrl}/${id}`, formData));
+    this.bills.update((current) => current.map((b) => (b.id === id ? updated : b)));
+    return updated;
+  }
+
+  getBillById(id: string): MilkBill | undefined {
+    return this.allBills().find((b) => b.id === id);
+  }
+
   async deleteBill(id: string): Promise<void> {
     await firstValueFrom(this.http.delete<void>(`${this.apiUrl}/${id}`));
     this.bills.update((current) => current.filter((b) => b.id !== id));

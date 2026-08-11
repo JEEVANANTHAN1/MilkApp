@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MilkBillService } from '../milk-bill.service';
 
 @Component({
@@ -13,6 +13,7 @@ import { MilkBillService } from '../milk-bill.service';
 })
 export class MilkBillListComponent {
   readonly milkBillService = inject(MilkBillService);
+  private readonly router = inject(Router);
 
   expandedId = signal<string | null>(null);
   searchQuery = signal<string>('');
@@ -31,6 +32,11 @@ export class MilkBillListComponent {
 
   toggleExpand(id: string): void {
     this.expandedId.update((current) => (current === id ? null : id));
+  }
+
+  edit(id: string, event: Event): void {
+    event.stopPropagation();
+    this.router.navigate(['/edit', id]);
   }
 
   async delete(id: string, event: Event): Promise<void> {

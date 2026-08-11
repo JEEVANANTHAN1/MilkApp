@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MilkBillService } from '../milk-bill.service';
 import { MilkBillDraft } from '../models/milk-bill.model';
 
@@ -27,6 +27,10 @@ export class MilkBillFormComponent {
   private readonly milkBillService = inject(MilkBillService);
   protected readonly recipientService = inject(MilkRecipientService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
+  editingId = signal<string | null>(null);
+  isEditMode = computed(() => !!this.editingId());
 
   /** Local base64 preview only — never sent to the server */
   imagePreviewUrl = signal<string | null>(null);
@@ -49,6 +53,29 @@ export class MilkBillFormComponent {
 
   isSaving = signal(false);
   errorMessage = signal<string | null>(null);
+
+  constructor() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.editingId.set(id);
+      const bill = this.milkBillService.getBillById(id);
+      if (bill) {
+        this.billDate.set(bill.billDate);
+        this.shift.set(bill.shift);
+        if (bill.recipientId) this.recipientId.set(bill.recipientId);
+        this.quantityLiters.set(bill.quantityLiters);
+        this.ratePerLiter.set(bill.ratePerLiter);
+        this.totalAmountOverride.set(bill.totalAmount);
+        if (bill.vendorName) this.vendorName.set(bill.vendorName);
+        if (bill.fatPercent != null) this.fatPercent.set(bill.fatPercent);
+        if (bill.snfPercent != null) this.snfPercent.set(bill.snfPercent);
+        if (bill.memberCode) this.memberCode.set(bill.memberCode);
+        if (bill.memberName) this.memberName.set(bill.memberName);
+        if (bill.notes) this.notes.set(bill.notes);
+        if (bill.imageUrl) this.imagePreviewUrl.set(bill.imageUrl);
+      }
+    }
+  }
 
   /** Active recipients list for dropdown selection */
   activeRecipients = this.recipientService.activeRecipients;
@@ -168,7 +195,11 @@ export class MilkBillFormComponent {
     };
 
     try {
-      await this.milkBillService.addBill(draft, this.selectedImageFile());
+      if (this.isEditMode() && this.editingId()) {
+        await this.milkBillService.updateBill(this.editingId()!, draft, this.selectedImageFile());
+      } else {
+        await this.milkBillService.addBill(draft, this.selectedImageFile());
+      }
       this.router.navigate(['/bills']);
     } catch {
       this.errorMessage.set('Could not save the bill. Please try again.');

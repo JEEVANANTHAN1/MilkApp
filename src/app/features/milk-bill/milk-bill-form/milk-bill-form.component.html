@@ -2,8 +2,8 @@
 
   <!-- Header -->
   <div class="bill-form__header">
-    <h2 class="bill-form__title">Log Bill</h2>
-    <p class="bill-form__subtitle">Enter daily collection details</p>
+    <h2 class="bill-form__title">{{ isEditMode() ? 'Edit Milk Delivery' : 'Log Bill' }}</h2>
+    <p class="bill-form__subtitle">{{ isEditMode() ? 'Update collection details' : 'Enter daily collection details' }}</p>
   </div>
 
   <!-- Smart Capture Card -->
@@ -274,7 +274,7 @@
     <!-- Submit CTA -->
     <button type="submit" class="btn btn--primary" [disabled]="!canSave() || isSaving()">
       <span class="material-symbols-outlined">save</span>
-      {{ isSaving() ? 'Saving…' : 'Save Bill' }}
+      {{ isSaving() ? 'Saving…' : (isEditMode() ? 'Update Delivery' : 'Save Bill') }}
     </button>
 
   </form>

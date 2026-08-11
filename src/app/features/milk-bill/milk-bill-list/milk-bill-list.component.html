@@ -60,7 +60,10 @@
               <span class="bill-card__amount">₹{{ bill.totalAmount }}</span>
               <span class="bill-card__liters">{{ bill.quantityLiters }} L</span>
             </div>
-            <button class="bill-card__delete" (click)="delete(bill.id, $event)" aria-label="Delete bill">
+            <button class="bill-card__action" (click)="edit(bill.id, $event)" aria-label="Edit bill" title="Edit delivery">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button class="bill-card__delete" (click)="delete(bill.id, $event)" aria-label="Delete bill" title="Delete delivery">
               <span class="material-symbols-outlined">delete</span>
             </button>
           </div>
