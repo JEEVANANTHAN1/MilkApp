@@ -1,40 +1,24 @@
 <div class="loading-overlay" [class.loading-overlay--error]="milkBillService.errorMessage()">
   <div class="loading-container">
 
-    <!-- App Logo Badge -->
-    <div class="hero-badge">
+    <!-- App Logo with subtle pulse ring -->
+    <div class="logo-wrapper">
       <div class="pulse-ring"></div>
       <div class="pulse-ring pulse-ring--delayed"></div>
-      <div class="hero-badge__img-box">
-        <img src="logo.jpg" alt="MilkApp Logo" class="hero-badge__logo" />
-      </div>
+      <img src="logo.jpg" alt="MilkApp Logo" class="app-logo" />
     </div>
-
-    <!-- App Title -->
-    <h1 class="brand-title">MilkApp</h1>
 
     @if (milkBillService.errorMessage(); as errorMsg) {
       <div class="error-card">
         <p class="error-card__msg">{{ errorMsg }}</p>
         <div class="error-card__actions">
-          <button class="btn btn--primary" (click)="retry()">
-            <span class="material-symbols-outlined">refresh</span>
-            Retry
-          </button>
-          <button class="btn btn--secondary" (click)="continueOffline()">
-            Continue Offline
-          </button>
+          <button class="btn btn--primary" (click)="retry()">Retry</button>
+          <button class="btn btn--secondary" (click)="continueOffline()">Offline</button>
         </div>
       </div>
     } @else {
-      <!-- Minimalist Progress & Status -->
-      <div class="status-box">
-        <div class="progress-bar-wrap">
-          <div class="progress-bar" [style.width.%]="progressPercent()"></div>
-        </div>
-        <p class="status-msg">{{ milkBillService.statusMessage() }}</p>
-        <p class="status-sub">Takes ~45s on first load after inactivity</p>
-      </div>
+      <!-- Minimal Spinner -->
+      <div class="spinner" aria-label="Loading"></div>
     }
 
   </div>
