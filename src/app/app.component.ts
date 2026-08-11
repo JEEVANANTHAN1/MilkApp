@@ -11,6 +11,6 @@ import { MilkBillService } from './features/milk-bill/milk-bill.service';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'MilkApp';
+  title = 'Milk Flow';
   protected readonly milkBillService = inject(MilkBillService);
 }
