@@ -1,13 +1,14 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { MilkRecipientService } from '../milk-recipient.service';
 import { MilkRecipient } from '../models/milk-recipient.model';
 
 @Component({
   selector: 'app-recipient-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './recipient-list.component.html',
   styleUrl: './recipient-list.component.scss',
 })

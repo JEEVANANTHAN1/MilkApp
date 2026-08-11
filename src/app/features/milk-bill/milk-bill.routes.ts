@@ -17,6 +17,11 @@ export const MILK_BILL_ROUTES: Routes = [
       import('../recipients/recipient-list/recipient-list.component').then((m) => m.RecipientListComponent),
   },
   {
+    path: 'recipients/:id',
+    loadComponent: () =>
+      import('../recipients/recipient-detail/recipient-detail.component').then((m) => m.RecipientDetailComponent),
+  },
+  {
     path: 'new',
     loadComponent: () =>
       import('./milk-bill-form/milk-bill-form.component').then((m) => m.MilkBillFormComponent),

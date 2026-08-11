@@ -1,0 +1,500 @@
+.recipient-detail {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.back-link {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-container-high);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.header-info {
+  flex: 1;
+}
+
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recipient-name {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--color-on-surface-variant);
+}
+
+.status-toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+
+  .material-symbols-outlined {
+    font-size: 32px;
+  }
+}
+
+/* ── Bento Stats ───────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xs);
+}
+
+.stat-card {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-container-lowest);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  &__label {
+    font-size: 0.725rem;
+    font-weight: 700;
+    color: var(--color-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  &__icon {
+    font-size: 18px;
+    color: var(--color-primary);
+  }
+
+  &__value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-primary);
+
+    small {
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+  }
+
+  &__sub {
+    font-size: 0.7rem;
+    color: var(--color-outline);
+    margin-top: 2px;
+  }
+}
+
+/* ── Calendar Card ─────────────────────────────────────────── */
+.calendar-card {
+  background: var(--color-surface-container-lowest);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-outline-variant);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  &__btn {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-outline-variant);
+    background: var(--color-surface-container-low);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background: var(--color-surface-container);
+    }
+  }
+}
+
+/* ── Calendar Grid ─────────────────────────────────────────── */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.weekday-header {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-on-surface-variant);
+  padding-bottom: 4px;
+}
+
+.day-cell {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-bright);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 2px;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+
+  &--padding {
+    background: transparent;
+    border: none;
+    cursor: default;
+  }
+
+  &:hover:not(.day-cell--padding) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xs);
+  }
+
+  &--selected {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 2px var(--color-primary) !important;
+  }
+
+  /* Color-coded session themes */
+  &--morning {
+    background: #fffbeb;
+    border-color: #fde68a;
+  }
+
+  &--evening {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+  }
+
+  &--both {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+  }
+}
+
+.day-number {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.indicator-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .indicator {
+    font-size: 10px;
+    line-height: 1;
+  }
+}
+
+/* ── Calendar Legend ───────────────────────────────────────── */
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-around;
+  gap: 8px;
+  padding-top: var(--space-xs);
+  border-top: 1px dashed var(--color-outline-variant);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-xs);
+  border: 1px solid transparent;
+
+  &--morning { background: #fffbeb; border-color: #f59e0b; }
+  &--evening { background: #eef2ff; border-color: #6366f1; }
+  &--both { background: #ecfdf5; border-color: #10b981; }
+  &--none { background: var(--color-surface-bright); border-color: var(--color-outline-variant); }
+}
+
+.legend-text {
+  font-size: 0.725rem;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+}
+
+/* ── Selected Day Detail ───────────────────────────────────── */
+.day-detail-card {
+  background: var(--color-surface-container-lowest);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-outline-variant);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-xs);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xs);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .material-symbols-outlined {
+      font-size: 18px;
+    }
+  }
+}
+
+.empty-day-msg {
+  margin: 8px 0 0;
+  font-size: 0.825rem;
+  color: var(--color-on-surface-variant);
+}
+
+.day-bills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.bill-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--color-surface-container-low);
+  border-radius: var(--radius-sm);
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+
+    strong {
+      font-size: 0.85rem;
+      color: var(--color-on-surface);
+    }
+
+    span {
+      font-size: 0.775rem;
+      color: var(--color-on-surface-variant);
+    }
+
+    small {
+      font-size: 0.7rem;
+      color: var(--color-outline);
+    }
+  }
+
+  &__amount {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--color-primary);
+  }
+}
+
+.shift-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+
+  &--morning { background: #fffbeb; border: 1px solid #fde68a; }
+  &--evening { background: #eef2ff; border: 1px solid #c7d2fe; }
+}
+
+/* ── Records Table / History ───────────────────────────────── */
+.records-card {
+  background: var(--color-surface-container-lowest);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-outline-variant);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-xs);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xs);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  &__count {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-outline);
+  }
+}
+
+.records-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.record-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--color-surface-container-low);
+  border-radius: var(--radius-md);
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
+.record-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-container);
+  color: var(--color-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
+}
+
+.record-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.record-date {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.shift-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+}
+
+.record-details {
+  font-size: 0.75rem;
+  color: var(--color-on-surface-variant);
+}
+
+.record-amount {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+
+  &--active { background: #dcfce7; color: #15803d; }
+  &--inactive { background: #f3f4f6; color: #6b7280; }
+  &--both { background: #ecfdf5; color: #10b981; }
+  &--morning { background: #fffbeb; color: #d97706; }
+  &--evening { background: #eef2ff; color: #4f46e5; }
+  &--none { background: #f3f4f6; color: #6b7280; }
+}
+
+.empty-msg {
+  margin: 4px 0 0;
+  font-size: 0.825rem;
+  color: var(--color-on-surface-variant);
+}

@@ -1,0 +1,212 @@
+<div class="recipient-detail">
+
+  <!-- Navigation Bar & Header -->
+  <header class="detail-header">
+    <a routerLink="/recipients" class="back-link" aria-label="Back to Recipients">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+
+    <div class="header-info">
+      <div class="header-title-row">
+        <h2 class="recipient-name">{{ recipient()?.name || 'Recipient Details' }}</h2>
+        @if (recipient(); as r) {
+          <span class="badge" [class.badge--active]="r.status === 'Active'" [class.badge--inactive]="r.status === 'Inactive'">
+            {{ r.status }}
+          </span>
+        }
+      </div>
+      <p class="subtitle">Milk Delivery History & Attendance Matrix</p>
+    </div>
+
+    @if (recipient(); as r) {
+      <button class="status-toggle-btn" (click)="toggleRecipientStatus()" title="Toggle Active / Inactive Status">
+        <span class="material-symbols-outlined">
+          {{ r.status === 'Active' ? 'toggle_on' : 'toggle_off' }}
+        </span>
+      </button>
+    }
+  </header>
+
+  <!-- Summary Bento Stats -->
+  <section class="stats-grid" aria-label="Monthly summary statistics">
+    <div class="stat-card">
+      <div class="stat-card__top">
+        <span class="stat-card__label">Total Liters</span>
+        <span class="material-symbols-outlined stat-card__icon">water_drop</span>
+      </div>
+      <div class="stat-card__value">{{ monthTotalLiters().toFixed(1) }} <small>L</small></div>
+      <div class="stat-card__sub">{{ formatMonthLabel(selectedMonth()) }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__top">
+        <span class="stat-card__label">Total Earnings</span>
+        <span class="material-symbols-outlined stat-card__icon">payments</span>
+      </div>
+      <div class="stat-card__value">₹{{ monthTotalAmount().toFixed(2) }}</div>
+      <div class="stat-card__sub">{{ formatMonthLabel(selectedMonth()) }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__top">
+        <span class="stat-card__label">Delivery Days</span>
+        <span class="material-symbols-outlined stat-card__icon">calendar_month</span>
+      </div>
+      <div class="stat-card__value">{{ monthDeliveryDaysCount() }} <small>days</small></div>
+      <div class="stat-card__sub">Days with milk deposit</div>
+    </div>
+  </section>
+
+  <!-- Calendar Section -->
+  <section class="calendar-card" aria-label="Delivery Calendar">
+    
+    <!-- Month Navigation -->
+    <div class="month-nav">
+      <button class="month-nav__btn" (click)="prevMonth()" aria-label="Previous Month">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+
+      <span class="month-nav__title">{{ formatMonthLabel(selectedMonth()) }}</span>
+
+      <button class="month-nav__btn" (click)="nextMonth()" aria-label="Next Month">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+
+    <!-- Calendar Matrix Grid -->
+    <div class="calendar-grid">
+      <!-- Weekday headers -->
+      <div class="weekday-header">Sun</div>
+      <div class="weekday-header">Mon</div>
+      <div class="weekday-header">Tue</div>
+      <div class="weekday-header">Wed</div>
+      <div class="weekday-header">Thu</div>
+      <div class="weekday-header">Fri</div>
+      <div class="weekday-header">Sat</div>
+
+      <!-- Day Cells -->
+      @for (cell of calendarDays(); track cell.dateIso) {
+        @if (cell.isPadding) {
+          <div class="day-cell day-cell--padding"></div>
+        } @else {
+          <button
+            type="button"
+            class="day-cell"
+            [class.day-cell--selected]="selectedDateIso() === cell.dateIso"
+            [class.day-cell--morning]="cell.deliveryType === 'morning'"
+            [class.day-cell--evening]="cell.deliveryType === 'evening'"
+            [class.day-cell--both]="cell.deliveryType === 'both'"
+            (click)="selectDay(cell)">
+            <span class="day-number">{{ cell.dayNumber }}</span>
+
+            <!-- Session Indicator Badges -->
+            <div class="indicator-wrap">
+              @if (cell.deliveryType === 'both') {
+                <span class="indicator indicator--both" title="Both Morning & Evening">🌅🌆</span>
+              } @else if (cell.deliveryType === 'morning') {
+                <span class="indicator indicator--morning" title="Morning Only">🌅</span>
+              } @else if (cell.deliveryType === 'evening') {
+                <span class="indicator indicator--evening" title="Evening Only">🌆</span>
+              }
+            </div>
+          </button>
+        }
+      }
+    </div>
+
+    <!-- Color Legend -->
+    <div class="calendar-legend">
+      <div class="legend-item">
+        <span class="legend-dot legend-dot--morning"></span>
+        <span class="legend-text">Morning Only (🌅)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot legend-dot--evening"></span>
+        <span class="legend-text">Evening Only (🌆)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot legend-dot--both"></span>
+        <span class="legend-text">Both Sessions (🌅+🌆)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot legend-dot--none"></span>
+        <span class="legend-text">No Delivery</span>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Selected Day Detail Card -->
+  @if (selectedDayCell(); as cell) {
+    <section class="day-detail-card" aria-label="Selected Day Details">
+      <div class="day-detail-card__header">
+        <h3 class="day-detail-card__title">
+          <span class="material-symbols-outlined">event</span>
+          {{ cell.dateIso }} Details
+        </h3>
+        <span class="badge" [class.badge--both]="cell.deliveryType === 'both'" [class.badge--morning]="cell.deliveryType === 'morning'" [class.badge--evening]="cell.deliveryType === 'evening'" [class.badge--none]="cell.deliveryType === 'none'">
+          {{ cell.deliveryType === 'both' ? 'Both Sessions' : (cell.deliveryType === 'morning' ? 'Morning Only' : (cell.deliveryType === 'evening' ? 'Evening Only' : 'No Delivery')) }}
+        </span>
+      </div>
+
+      @if (cell.bills.length === 0) {
+        <p class="empty-day-msg">No milk collection recorded for this recipient on {{ cell.dateIso }}.</p>
+      } @else {
+        <div class="day-bills-list">
+          @for (bill of cell.bills; track bill.id) {
+            <div class="bill-row">
+              <div class="bill-row__left">
+                <div class="shift-icon" [class.shift-icon--morning]="bill.shift === 'Morning'" [class.shift-icon--evening]="bill.shift === 'Evening'">
+                  {{ bill.shift === 'Morning' ? '🌅' : '🌆' }}
+                </div>
+                <div class="bill-row__meta">
+                  <strong>{{ bill.shift }} Session</strong>
+                  <span>{{ bill.quantityLiters }} L &#64; ₹{{ bill.ratePerLiter }}/L</span>
+                  @if (bill.fatPercent || bill.snfPercent) {
+                    <small>FAT {{ bill.fatPercent ?? '-' }}% | SNF {{ bill.snfPercent ?? '-' }}%</small>
+                  }
+                </div>
+              </div>
+              <div class="bill-row__amount">
+                ₹{{ bill.totalAmount }}
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+
+  <!-- Recent Delivery Records Table -->
+  <section class="records-card" aria-label="Recent Deliveries">
+    <div class="records-card__header">
+      <h3 class="records-card__title">Deliveries History</h3>
+      <span class="records-card__count">{{ recipientBills().length }} records</span>
+    </div>
+
+    @if (recipientBills().length === 0) {
+      <p class="empty-msg">No milk collection records logged for this recipient yet.</p>
+    } @else {
+      <ul class="records-list">
+        @for (bill of recipientBills(); track bill.id) {
+          <li class="record-item">
+            <div class="record-item__left">
+              <div class="record-avatar">
+                <span class="material-symbols-outlined">receipt_long</span>
+              </div>
+              <div class="record-meta">
+                <span class="record-date">
+                  {{ bill.billDate }} 
+                  <span class="shift-badge">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }} {{ bill.shift }}</span>
+                </span>
+                <span class="record-details">{{ bill.quantityLiters }} L &#64; ₹{{ bill.ratePerLiter }}/L</span>
+              </div>
+            </div>
+            <div class="record-amount">₹{{ bill.totalAmount }}</div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+</div>

@@ -111,7 +111,7 @@
       </div>
     } @else {
       @for (recipient of filteredRecipients(); track recipient.id) {
-        <article class="recipient-card" [class.recipient-card--inactive]="recipient.status === 'Inactive'">
+        <article class="recipient-card" [class.recipient-card--inactive]="recipient.status === 'Inactive'" [routerLink]="['/recipients', recipient.id]">
           <div class="recipient-card__left">
             <div class="recipient-card__avatar" [class.recipient-card__avatar--inactive]="recipient.status === 'Inactive'">
               <span class="material-symbols-outlined">storefront</span>
