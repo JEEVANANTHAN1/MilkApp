@@ -71,8 +71,25 @@ export class MilkBillService {
     try {
       // First attempt fetching bills (will trigger Render wake-up)
       const all = await firstValueFrom(this.http.get<MilkBill[]>(this.apiUrl));
-      this.bills.set(all);
-      this.saveLocalBills(all);
+      const local = this.bills();
+      const serverIds = new Set(all.map((b) => b.id));
+      const unsynced = local.filter((b) => !serverIds.has(b.id));
+
+      if (unsynced.length > 0) {
+        await this.syncUnsyncedBills(unsynced);
+        try {
+          const refreshed = await firstValueFrom(this.http.get<MilkBill[]>(this.apiUrl));
+          this.bills.set(refreshed);
+          this.saveLocalBills(refreshed);
+        } catch {
+          this.bills.set(all);
+          this.saveLocalBills(all);
+        }
+      } else {
+        this.bills.set(all);
+        this.saveLocalBills(all);
+      }
+
       this.stage.set('ready');
       this.isOffline.set(false);
     } catch (err: any) {
@@ -97,6 +114,30 @@ export class MilkBillService {
       this.stopTimer();
       if (this.stage() !== 'error') {
         this.loading.set(false);
+      }
+    }
+  }
+
+  private async syncUnsyncedBills(unsynced: MilkBill[]): Promise<void> {
+    for (const b of unsynced) {
+      try {
+        const formData = new FormData();
+        formData.append('billDate', b.billDate);
+        formData.append('shift', b.shift);
+        formData.append('quantityLiters', String(b.quantityLiters));
+        formData.append('ratePerLiter', String(b.ratePerLiter));
+        formData.append('totalAmount', String(b.totalAmount));
+        formData.append('fatPercent', String(b.fatPercent ?? 0));
+        if (b.vendorName) formData.append('vendorName', b.vendorName);
+        if (b.recipientId) formData.append('recipientId', b.recipientId);
+        if (b.snfPercent != null) formData.append('snfPercent', String(b.snfPercent));
+        if (b.memberCode) formData.append('memberCode', b.memberCode);
+        if (b.memberName) formData.append('memberName', b.memberName);
+        if (b.notes) formData.append('notes', b.notes);
+
+        await firstValueFrom(this.http.post<MilkBill>(this.apiUrl, formData));
+      } catch (err) {
+        console.warn(`Failed to sync local bill ${b.id} to server:`, err);
       }
     }
   }
