@@ -43,6 +43,10 @@ export class LoginComponent {
     this.showPassword.update(v => !v);
   }
 
+  protected loginWithGoogle() {
+    this.auth.loginWithGoogle();
+  }
+
   protected onMobileInput(event: Event) {
     const input = event.target as HTMLInputElement;
     // Only allow digits, spaces, +, hyphens

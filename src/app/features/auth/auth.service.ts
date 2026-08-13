@@ -6,7 +6,10 @@ import { environment } from '../../../environments/environment';
 
 export interface AuthUser {
   userId: string;
-  mobileNumber: string;
+  email?: string;
+  mobileNumber?: string;
+  name?: string;
+  avatarUrl?: string;
 }
 
 export interface AuthTokens {
@@ -20,6 +23,22 @@ const TOKEN_KEY = 'mf_access_token';
 const REFRESH_KEY = 'mf_refresh_token';
 const USER_KEY = 'mf_user';
 const EXPIRY_KEY = 'mf_token_expiry';
+
+function parseJwt(token: string): any {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -37,8 +56,15 @@ export class AuthService {
   readonly error = computed(() => this._error());
 
   constructor() {
-    // Try to restore session from localStorage on app start
+    this.handleOAuthCallback();
     this.checkAndRestoreSession();
+  }
+
+  /** Initiates Google OAuth Login via Supabase Auth */
+  loginWithGoogle(): void {
+    const redirectTo = encodeURIComponent(`${window.location.origin}/login`);
+    const googleAuthUrl = `${environment.supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`;
+    window.location.href = googleAuthUrl;
   }
 
   async login(mobileNumber: string, password: string): Promise<void> {
@@ -48,8 +74,9 @@ export class AuthService {
       const tokens = await firstValueFrom(
         this.http.post<AuthTokens>(`${this.apiUrl}/login`, { mobileNumber, password })
       );
-      this.storeTokens(tokens, mobileNumber);
-      this._user.set({ userId: tokens.userId, mobileNumber });
+      const authUser: AuthUser = { userId: tokens.userId, mobileNumber };
+      this.storeTokens(tokens.accessToken, tokens.refreshToken, tokens.expiresIn, authUser);
+      this._user.set(authUser);
     } catch (err: any) {
       const msg = err?.error?.message || 'Login failed. Please check your credentials.';
       this._error.set(msg);
@@ -66,14 +93,14 @@ export class AuthService {
       const result = await firstValueFrom(
         this.http.post<AuthTokens | { message: string }>(`${this.apiUrl}/register`, { mobileNumber, password })
       );
-      // If we got an access token back, log in immediately
       if ('accessToken' in result && result.accessToken) {
-        this.storeTokens(result as AuthTokens, mobileNumber);
-        this._user.set({ userId: (result as AuthTokens).userId, mobileNumber });
+        const tokens = result as AuthTokens;
+        const authUser: AuthUser = { userId: tokens.userId, mobileNumber };
+        this.storeTokens(tokens.accessToken, tokens.refreshToken, tokens.expiresIn, authUser);
+        this._user.set(authUser);
       }
-      // Otherwise, the server returned a message — user can now log in
     } catch (err: any) {
-      const msg = err?.error?.message || 'Registration failed. This mobile number may already be registered.';
+      const msg = err?.error?.message || 'Registration failed. Mobile number may already be registered.';
       this._error.set(msg);
       throw new Error(msg);
     } finally {
@@ -99,6 +126,43 @@ export class AuthService {
     this._error.set(null);
   }
 
+  /** Check URL hash for OAuth redirect tokens from Supabase */
+  private handleOAuthCallback(): void {
+    const hash = window.location.hash;
+    if (!hash || !hash.includes('access_token')) return;
+
+    const params = new URLSearchParams(hash.replace(/^#/, ''));
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token') || '';
+    const expiresIn = parseInt(params.get('expires_in') || '3600', 10);
+    const errorDescription = params.get('error_description');
+
+    if (errorDescription) {
+      this._error.set(decodeURIComponent(errorDescription));
+      window.history.replaceState(null, '', window.location.pathname);
+      return;
+    }
+
+    if (accessToken) {
+      const payload = parseJwt(accessToken);
+      if (payload && payload.sub) {
+        const authUser: AuthUser = {
+          userId: payload.sub,
+          email: payload.email,
+          name: payload.user_metadata?.full_name || payload.user_metadata?.name || payload.email,
+          avatarUrl: payload.user_metadata?.avatar_url || payload.user_metadata?.picture,
+        };
+
+        this.storeTokens(accessToken, refreshToken, expiresIn, authUser);
+        this._user.set(authUser);
+
+        // Clear hash from URL and redirect to home
+        window.history.replaceState(null, '', window.location.pathname);
+        this.router.navigate(['/']);
+      }
+    }
+  }
+
   private hasValidToken(): boolean {
     const expiry = localStorage.getItem(EXPIRY_KEY);
     if (!expiry) return false;
@@ -111,30 +175,27 @@ export class AuthService {
     const user = this.loadStoredUser();
 
     if (!token || !user) {
-      this._user.set(null);
       return;
     }
 
     if (!this.hasValidToken() && refresh) {
-      // Try to refresh the token
       try {
         const tokens = await firstValueFrom(
           this.http.post<AuthTokens>(`${this.apiUrl}/refresh`, { refreshToken: refresh })
         );
-        this.storeTokens(tokens, user.mobileNumber);
-        this._user.set({ userId: tokens.userId, mobileNumber: user.mobileNumber });
+        this.storeTokens(tokens.accessToken, tokens.refreshToken, tokens.expiresIn, user);
+        this._user.set(user);
       } catch {
-        // Refresh failed — clear session
         this.logout();
       }
     }
   }
 
-  private storeTokens(tokens: AuthTokens, mobileNumber: string): void {
-    localStorage.setItem(TOKEN_KEY, tokens.accessToken);
-    localStorage.setItem(REFRESH_KEY, tokens.refreshToken);
-    localStorage.setItem(EXPIRY_KEY, String(Date.now() + tokens.expiresIn * 1000));
-    localStorage.setItem(USER_KEY, JSON.stringify({ userId: tokens.userId, mobileNumber }));
+  private storeTokens(accessToken: string, refreshToken: string, expiresIn: number, user: AuthUser): void {
+    localStorage.setItem(TOKEN_KEY, accessToken);
+    localStorage.setItem(REFRESH_KEY, refreshToken);
+    localStorage.setItem(EXPIRY_KEY, String(Date.now() + expiresIn * 1000));
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
   private loadStoredUser(): AuthUser | null {
