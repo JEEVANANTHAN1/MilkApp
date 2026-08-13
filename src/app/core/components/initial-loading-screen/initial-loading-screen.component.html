@@ -9,16 +9,16 @@
     </div>
 
     @if (milkBillService.errorMessage(); as errorMsg) {
-      <div class="error-card">
-        <p class="error-card__msg">{{ errorMsg }}</p>
-        <div class="error-card__actions">
-          <button class="btn btn--primary" (click)="retry()">Retry</button>
-          <button class="btn btn--secondary" (click)="continueOffline()">Offline</button>
-        </div>
+    <div class="error-card">
+      <p class="error-card__msg">{{ errorMsg }}</p>
+      <div class="error-card__actions">
+        <button class="btn btn--primary" (click)="retry()">Retry</button>
+        <button class="btn btn--secondary" (click)="continueOffline()">Offline</button>
       </div>
+    </div>
     } @else {
-      <!-- Minimal Spinner -->
-      <div class="spinner" aria-label="Loading"></div>
+    <!-- Minimal Spinner -->
+    <!-- <div class="spinner" aria-label="Loading"></div> -->
     }
 
   </div>
