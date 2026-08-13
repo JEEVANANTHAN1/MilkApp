@@ -197,7 +197,7 @@
               <div class="record-meta">
                 <span class="record-date">
                   {{ bill.billDate }} 
-                  <span class="shift-badge">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }} {{ bill.shift }}</span>
+                  <span class="shift-badge" [attr.title]="bill.shift">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }}</span>
                 </span>
                 <span class="record-details">{{ bill.quantityLiters }} L &#64; ₹{{ bill.ratePerLiter }}/L</span>
               </div>

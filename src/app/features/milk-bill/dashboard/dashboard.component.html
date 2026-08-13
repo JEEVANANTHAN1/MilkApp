@@ -85,6 +85,16 @@
           <div class="stat-card__sub">Liters collected</div>
         </div>
 
+        <!-- Avg Liters / Day -->
+        <div class="stat-card">
+          <div class="stat-card__top">
+            <span class="stat-card__label">Avg / Day</span>
+            <span class="material-symbols-outlined stat-card__icon">equalizer</span>
+          </div>
+          <div class="stat-card__value">{{ filteredAverageLitersPerDay().toFixed(1) }} <span class="unit">L</span></div>
+          <div class="stat-card__sub">Liters per day</div>
+        </div>
+
         <!-- Avg Rate -->
         <div class="stat-card">
           <div class="stat-card__top">
@@ -137,7 +147,7 @@
                   </div>
                   <div class="recent__meta">
                     <p class="recent__date">{{ bill.billDate }}
-                      <span class="shift-badge">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }} {{ bill.shift }}</span>
+                      <span class="shift-badge" [attr.title]="bill.shift">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }}</span>
                     </p>
                     <p class="recent__detail">{{ bill.quantityLiters }} L
                       @if (bill.vendorName) { · {{ bill.vendorName }} }

@@ -64,6 +64,14 @@ export class DashboardComponent {
     return liters > 0 ? this.filteredTotalSpent() / liters : 0;
   });
 
+  /** Average liters per day across unique delivery days in filtered period */
+  protected readonly filteredAverageLitersPerDay = computed(() => {
+    const bills = this.filteredBills();
+    if (bills.length === 0) return 0;
+    const uniqueDays = new Set(bills.map((b) => b.billDate)).size;
+    return uniqueDays > 0 ? this.filteredTotalLiters() / uniqueDays : 0;
+  });
+
   protected readonly recentBills = computed(() => this.filteredBills().slice(0, 5));
 
   /** % change vs. the month right before the selected one; null for "All time" or when there's nothing to compare against */

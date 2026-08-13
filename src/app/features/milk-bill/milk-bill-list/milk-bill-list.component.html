@@ -50,7 +50,7 @@
           <div class="bill-card__main">
             <div class="bill-card__left">
               <p class="bill-card__date">{{ bill.billDate }}
-                <span class="shift-badge">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }} {{ bill.shift }}</span>
+                <span class="shift-badge" [attr.title]="bill.shift">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }}</span>
               </p>
               @if (bill.vendorName) {
                 <p class="bill-card__vendor">{{ bill.vendorName }}</p>
@@ -60,12 +60,14 @@
               <span class="bill-card__amount">₹{{ bill.totalAmount }}</span>
               <span class="bill-card__liters">{{ bill.quantityLiters }} L</span>
             </div>
-            <button class="bill-card__action" (click)="edit(bill.id, $event)" aria-label="Edit bill" title="Edit delivery">
-              <span class="material-symbols-outlined">edit</span>
-            </button>
-            <button class="bill-card__delete" (click)="delete(bill.id, $event)" aria-label="Delete bill" title="Delete delivery">
-              <span class="material-symbols-outlined">delete</span>
-            </button>
+            <div class="bill-card__actions">
+              <button class="bill-card__action" (click)="edit(bill.id, $event)" aria-label="Edit bill" title="Edit delivery">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button class="bill-card__delete" (click)="delete(bill.id, $event)" aria-label="Delete bill" title="Delete delivery">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
           </div>
 
           <!-- Expanded detail -->
