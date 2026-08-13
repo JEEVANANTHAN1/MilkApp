@@ -42,20 +42,19 @@ export class MilkRecipientService {
   readonly isLoading = computed(() => this.loading());
 
   constructor() {
-    this.init();
+    this.loadRecipients();
   }
 
-  private async init(): Promise<void> {
+  /** Always load recipients directly from the database API */
+  async loadRecipients(): Promise<void> {
     this.loading.set(true);
-    // Load local cache first
+
+    // Show local cache temporarily while network request is in flight
     const cached = this.loadLocalCache();
     if (cached.length > 0) {
       this.recipients.set(cached);
-    } else {
-      this.recipients.set([]);
     }
 
-    // Try syncing with API
     try {
       const serverData = await firstValueFrom(this.http.get<MilkRecipient[]>(this.apiUrl));
       if (serverData && Array.isArray(serverData)) {
@@ -63,70 +62,60 @@ export class MilkRecipientService {
         this.saveLocalCache(serverData);
       }
     } catch (err) {
-      console.info('API sync for recipients unavailable, operating with local cache.', err);
+      console.warn('Could not fetch recipients from DB API, using local backup cache.', err);
     } finally {
       this.loading.set(false);
     }
   }
 
+  /** Add a recipient directly to Supabase DB */
   async addRecipient(name: string, status: 'Active' | 'Inactive' = 'Active'): Promise<MilkRecipient> {
     const trimmed = name.trim();
     if (!trimmed) throw new Error('Recipient name cannot be empty');
 
-    const newRecipient: MilkRecipient = {
-      id: generateUuid(),
+    const payload = {
+      name: trimmed,
+      status,
+    };
+
+    try {
+      const created = await firstValueFrom(this.http.post<MilkRecipient>(this.apiUrl, payload));
+      if (created) {
+        this.recipients.update((current) => [...current, created]);
+        this.saveLocalCache(this.recipients());
+        return created;
+      }
+    } catch (err) {
+      console.error('Failed to create recipient in DB:', err);
+      throw err;
+    }
+
+    throw new Error('Failed to create recipient in DB');
+  }
+
+  /** Update a recipient directly in Supabase DB */
+  async updateRecipient(id: string, name: string, status: 'Active' | 'Inactive'): Promise<MilkRecipient> {
+    const trimmed = name.trim();
+    if (!trimmed) throw new Error('Recipient name cannot be empty');
+
+    const updatedRecipient: MilkRecipient = {
+      id,
       name: trimmed,
       status,
       createdAt: new Date().toISOString(),
     };
 
-    // Update local state immediately
-    this.recipients.update((current) => [...current, newRecipient]);
-    this.saveLocalCache(this.recipients());
-
-    // Sync to API in background
     try {
-      const created = await firstValueFrom(this.http.post<MilkRecipient>(this.apiUrl, newRecipient));
-      if (created) {
-        this.recipients.update((current) =>
-          current.map((r) => (r.id === newRecipient.id ? created : r))
-        );
-        this.saveLocalCache(this.recipients());
-        return created;
-      }
+      await firstValueFrom(this.http.put<void>(`${this.apiUrl}/${id}`, updatedRecipient));
+      this.recipients.update((current) =>
+        current.map((r) => (r.id === id ? { ...r, name: trimmed, status } : r))
+      );
+      this.saveLocalCache(this.recipients());
+      return updatedRecipient;
     } catch (err) {
-      console.warn('Could not sync created recipient to backend, saved locally.', err);
+      console.error('Failed to update recipient in DB:', err);
+      throw err;
     }
-
-    return newRecipient;
-  }
-
-  async updateRecipient(id: string, name: string, status: 'Active' | 'Inactive'): Promise<MilkRecipient> {
-    const trimmed = name.trim();
-    if (!trimmed) throw new Error('Recipient name cannot be empty');
-
-    let updated: MilkRecipient | null = null;
-
-    this.recipients.update((current) =>
-      current.map((r) => {
-        if (r.id === id) {
-          updated = { ...r, name: trimmed, status };
-          return updated;
-        }
-        return r;
-      })
-    );
-    this.saveLocalCache(this.recipients());
-
-    if (updated && isValidGuid(id)) {
-      try {
-        await firstValueFrom(this.http.put<void>(`${this.apiUrl}/${id}`, updated));
-      } catch (err) {
-        console.warn('Could not sync updated recipient to backend, saved locally.', err);
-      }
-    }
-
-    return updated ?? { id, name: trimmed, status };
   }
 
   async toggleStatus(id: string): Promise<void> {
@@ -137,16 +126,15 @@ export class MilkRecipientService {
     await this.updateRecipient(id, current.name, newStatus);
   }
 
+  /** Delete a recipient directly from Supabase DB */
   async deleteRecipient(id: string): Promise<void> {
-    this.recipients.update((current) => current.filter((r) => r.id !== id));
-    this.saveLocalCache(this.recipients());
-
-    if (isValidGuid(id)) {
-      try {
-        await firstValueFrom(this.http.delete<void>(`${this.apiUrl}/${id}`));
-      } catch (err) {
-        console.warn('Could not sync deleted recipient to backend, deleted locally.', err);
-      }
+    try {
+      await firstValueFrom(this.http.delete<void>(`${this.apiUrl}/${id}`));
+      this.recipients.update((current) => current.filter((r) => r.id !== id));
+      this.saveLocalCache(this.recipients());
+    } catch (err) {
+      console.error('Failed to delete recipient from DB:', err);
+      throw err;
     }
   }
 
@@ -155,7 +143,7 @@ export class MilkRecipientService {
       try {
         return await firstValueFrom(this.http.get<MilkRecipient>(`${this.apiUrl}/${id}`));
       } catch {
-        // Fallback to local cache
+        // Fallback to local signal
       }
     }
     return this.recipients().find((r) => r.id === id) || null;
@@ -178,7 +166,6 @@ export class MilkRecipientService {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return [];
       const list: MilkRecipient[] = JSON.parse(raw);
-      // Filter out any stale non-UUID items from previous dev builds
       const validList = list.filter((item) => isValidGuid(item.id));
       return validList;
     } catch {
