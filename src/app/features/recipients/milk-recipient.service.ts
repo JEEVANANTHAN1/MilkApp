@@ -66,14 +66,38 @@ export class MilkRecipientService {
     // Try syncing with API
     try {
       const serverData = await firstValueFrom(this.http.get<MilkRecipient[]>(this.apiUrl));
-      if (serverData && serverData.length > 0) {
-        this.recipients.set(serverData);
-        this.saveLocalCache(serverData);
+      if (serverData && Array.isArray(serverData)) {
+        if (serverData.length > 0) {
+          this.recipients.set(serverData);
+          this.saveLocalCache(serverData);
+        } else {
+          // Database table is empty — seed default recipients to backend DB
+          await this.seedDefaultRecipientsToApi();
+        }
       }
     } catch (err) {
       console.info('API sync for recipients unavailable, operating with local cache.', err);
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  private async seedDefaultRecipientsToApi(): Promise<void> {
+    for (const rec of DEFAULT_RECIPIENTS) {
+      try {
+        await firstValueFrom(this.http.post<MilkRecipient>(this.apiUrl, rec));
+      } catch (err) {
+        console.warn(`Could not seed recipient ${rec.name} to backend API`, err);
+      }
+    }
+    try {
+      const serverData = await firstValueFrom(this.http.get<MilkRecipient[]>(this.apiUrl));
+      if (serverData && serverData.length > 0) {
+        this.recipients.set(serverData);
+        this.saveLocalCache(serverData);
+      }
+    } catch {
+      // Keep existing recipients in signal
     }
   }
 
