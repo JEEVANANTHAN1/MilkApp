@@ -74,6 +74,10 @@
   flex: 1;
   /* Reserve space for fixed bottom nav */
   padding-bottom: calc(64px + env(safe-area-inset-bottom) + 16px);
+
+  &--full {
+    padding-bottom: 0;
+  }
 }
 
 /* ── Bottom Navigation ────────────────────────────────────── */

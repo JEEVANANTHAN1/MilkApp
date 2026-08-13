@@ -1,45 +1,49 @@
 <div class="app-shell">
-  @if (milkBillService.isLoading() || milkBillService.errorMessage()) {
-    <app-initial-loading-screen />
+  @if (!isLoginPage()) {
+    @if (milkBillService.isLoading() || milkBillService.errorMessage()) {
+      <app-initial-loading-screen />
+    }
+
+    <!-- ── Top App Bar ─────────────────────────────────── -->
+    <header class="top-bar">
+      <div class="top-bar__brand">
+        <img src="logo.jpg" alt="Milk Flow Logo" class="top-bar__logo" />
+        <span class="top-bar__title">Milk Flow</span>
+      </div>
+      <button class="icon-btn" aria-label="Logout" (click)="logout()" title="Logout">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
+    </header>
   }
 
-  <!-- ── Top App Bar ─────────────────────────────────── -->
-  <header class="top-bar">
-    <div class="top-bar__brand">
-      <img src="logo.jpg" alt="Milk Flow Logo" class="top-bar__logo" />
-      <span class="top-bar__title">Milk Flow</span>
-    </div>
-    <button class="icon-btn" aria-label="Account">
-      <span class="material-symbols-outlined">account_circle</span>
-    </button>
-  </header>
-
   <!-- ── Page content ───────────────────────────────── -->
-  <main class="page-content">
+  <main class="page-content" [class.page-content--full]="isLoginPage()">
     <router-outlet />
   </main>
 
-  <!-- ── Bottom Navigation ──────────────────────────── -->
-  <nav class="bottom-nav" aria-label="Main navigation">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-       class="bottom-nav__item" aria-label="Dashboard">
-      <span class="material-symbols-outlined bottom-nav__icon">dashboard</span>
-      <span class="bottom-nav__label">Dashboard</span>
-    </a>
-    <a routerLink="/bills" routerLinkActive="active"
-       class="bottom-nav__item" aria-label="Deliveries">
-      <span class="material-symbols-outlined bottom-nav__icon">receipt_long</span>
-      <span class="bottom-nav__label">Deliveries</span>
-    </a>
-    <a routerLink="/recipients" routerLinkActive="active"
-       class="bottom-nav__item" aria-label="Recipients">
-      <span class="material-symbols-outlined bottom-nav__icon">group</span>
-      <span class="bottom-nav__label">Recipients</span>
-    </a>
-    <a routerLink="/new" routerLinkActive="active"
-       class="bottom-nav__item" aria-label="Log Delivery">
-      <span class="material-symbols-outlined bottom-nav__icon">add_circle</span>
-      <span class="bottom-nav__label">Log Delivery</span>
-    </a>
-  </nav>
+  @if (!isLoginPage()) {
+    <!-- ── Bottom Navigation ──────────────────────────── -->
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+         class="bottom-nav__item" aria-label="Dashboard">
+        <span class="material-symbols-outlined bottom-nav__icon">dashboard</span>
+        <span class="bottom-nav__label">Dashboard</span>
+      </a>
+      <a routerLink="/bills" routerLinkActive="active"
+         class="bottom-nav__item" aria-label="Deliveries">
+        <span class="material-symbols-outlined bottom-nav__icon">receipt_long</span>
+        <span class="bottom-nav__label">Deliveries</span>
+      </a>
+      <a routerLink="/recipients" routerLinkActive="active"
+         class="bottom-nav__item" aria-label="Recipients">
+        <span class="material-symbols-outlined bottom-nav__icon">group</span>
+        <span class="bottom-nav__label">Recipients</span>
+      </a>
+      <a routerLink="/new" routerLinkActive="active"
+         class="bottom-nav__item" aria-label="Log Delivery">
+        <span class="material-symbols-outlined bottom-nav__icon">add_circle</span>
+        <span class="bottom-nav__label">Log Delivery</span>
+      </a>
+    </nav>
+  }
 </div>

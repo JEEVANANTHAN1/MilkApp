@@ -1,0 +1,145 @@
+<div class="login-page">
+  <!-- Background blobs -->
+  <div class="blob blob--1"></div>
+  <div class="blob blob--2"></div>
+  <div class="blob blob--3"></div>
+
+  <div class="login-card">
+
+    <!-- Brand -->
+    <div class="brand">
+      <div class="brand__logo-wrap">
+        <img src="logo.jpg" alt="Milk Flow logo" class="brand__logo" />
+      </div>
+      <h1 class="brand__name">Milk Flow</h1>
+      <p class="brand__tagline">Your milk collection, organised.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs" role="tablist">
+      <button
+        id="tab-login"
+        role="tab"
+        [attr.aria-selected]="isLogin"
+        class="tabs__tab"
+        [class.tabs__tab--active]="isLogin"
+        (click)="switchMode('login')">
+        Sign In
+      </button>
+      <button
+        id="tab-register"
+        role="tab"
+        [attr.aria-selected]="isRegister"
+        class="tabs__tab"
+        [class.tabs__tab--active]="isRegister"
+        (click)="switchMode('register')">
+        Create Account
+      </button>
+    </div>
+
+    <!-- Success banner -->
+    @if (successMessage()) {
+      <div class="alert alert--success" role="status">
+        <span class="material-symbols-outlined">check_circle</span>
+        {{ successMessage() }}
+      </div>
+    }
+
+    <!-- Error banner -->
+    @if (errorMessage()) {
+      <div class="alert alert--error" role="alert">
+        <span class="material-symbols-outlined">error</span>
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <!-- Form -->
+    <form class="form" (ngSubmit)="submit()" autocomplete="on">
+
+      <!-- Mobile Number -->
+      <div class="field">
+        <label class="field__label" for="mobile-input">Mobile Number</label>
+        <div class="field__input-wrap">
+          <span class="field__icon material-symbols-outlined">phone</span>
+          <input
+            id="mobile-input"
+            class="field__input"
+            type="tel"
+            inputmode="tel"
+            autocomplete="tel"
+            placeholder="e.g. 9876543210"
+            [value]="mobileNumber()"
+            (input)="onMobileInput($event)"
+            required
+            aria-label="Mobile number" />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="field">
+        <label class="field__label" for="password-input">Password</label>
+        <div class="field__input-wrap">
+          <span class="field__icon material-symbols-outlined">lock</span>
+          <input
+            id="password-input"
+            class="field__input field__input--password"
+            [type]="showPassword() ? 'text' : 'password'"
+            autocomplete="{{ isLogin ? 'current-password' : 'new-password' }}"
+            placeholder="Enter password"
+            [value]="password()"
+            (input)="password.set($any($event.target).value)"
+            required
+            aria-label="Password" />
+          <button
+            type="button"
+            class="field__toggle"
+            (click)="togglePassword()"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+            <span class="material-symbols-outlined">{{ showPassword() ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Confirm Password (register only) -->
+      @if (isRegister) {
+        <div class="field">
+          <label class="field__label" for="confirm-password-input">Confirm Password</label>
+          <div class="field__input-wrap">
+            <span class="field__icon material-symbols-outlined">lock_reset</span>
+            <input
+              id="confirm-password-input"
+              class="field__input field__input--password"
+              [type]="showPassword() ? 'text' : 'password'"
+              autocomplete="new-password"
+              placeholder="Re-enter password"
+              [value]="confirmPassword()"
+              (input)="confirmPassword.set($any($event.target).value)"
+              required
+              aria-label="Confirm password" />
+          </div>
+        </div>
+      }
+
+      <!-- Submit Button -->
+      <button
+        id="auth-submit-btn"
+        type="submit"
+        class="submit-btn"
+        [class.submit-btn--loading]="submitting()"
+        [disabled]="submitting()">
+        @if (submitting()) {
+          <span class="spinner"></span>
+          <span>{{ isLogin ? 'Signing in…' : 'Creating account…' }}</span>
+        } @else {
+          <span class="material-symbols-outlined">{{ isLogin ? 'login' : 'person_add' }}</span>
+          <span>{{ isLogin ? 'Sign In' : 'Create Account' }}</span>
+        }
+      </button>
+
+    </form>
+
+    <p class="footer-hint">
+      Milk Flow &copy; {{ currentYear }}
+    </p>
+  </div>
+</div>
