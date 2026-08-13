@@ -21,13 +21,6 @@ function isValidGuid(id: string): boolean {
   return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
 }
 
-const DEFAULT_RECIPIENTS: MilkRecipient[] = [
-  { id: '11111111-1111-1111-1111-111111111111', name: 'Milkymist Society', status: 'Active', createdAt: new Date().toISOString() },
-  { id: '22222222-2222-2222-2222-222222222222', name: 'Mani', status: 'Active', createdAt: new Date().toISOString() },
-  { id: '33333333-3333-3333-3333-333333333333', name: 'Kumar', status: 'Active', createdAt: new Date().toISOString() },
-  { id: '44444444-4444-4444-4444-444444444444', name: 'Local Milk Shop', status: 'Active', createdAt: new Date().toISOString() },
-];
-
 @Injectable({ providedIn: 'root' })
 export class MilkRecipientService {
   private readonly http = inject(HttpClient);
@@ -59,45 +52,20 @@ export class MilkRecipientService {
     if (cached.length > 0) {
       this.recipients.set(cached);
     } else {
-      this.recipients.set(DEFAULT_RECIPIENTS);
-      this.saveLocalCache(DEFAULT_RECIPIENTS);
+      this.recipients.set([]);
     }
 
     // Try syncing with API
     try {
       const serverData = await firstValueFrom(this.http.get<MilkRecipient[]>(this.apiUrl));
       if (serverData && Array.isArray(serverData)) {
-        if (serverData.length > 0) {
-          this.recipients.set(serverData);
-          this.saveLocalCache(serverData);
-        } else {
-          // Database table is empty — seed default recipients to backend DB
-          await this.seedDefaultRecipientsToApi();
-        }
+        this.recipients.set(serverData);
+        this.saveLocalCache(serverData);
       }
     } catch (err) {
       console.info('API sync for recipients unavailable, operating with local cache.', err);
     } finally {
       this.loading.set(false);
-    }
-  }
-
-  private async seedDefaultRecipientsToApi(): Promise<void> {
-    for (const rec of DEFAULT_RECIPIENTS) {
-      try {
-        await firstValueFrom(this.http.post<MilkRecipient>(this.apiUrl, rec));
-      } catch (err) {
-        console.warn(`Could not seed recipient ${rec.name} to backend API`, err);
-      }
-    }
-    try {
-      const serverData = await firstValueFrom(this.http.get<MilkRecipient[]>(this.apiUrl));
-      if (serverData && serverData.length > 0) {
-        this.recipients.set(serverData);
-        this.saveLocalCache(serverData);
-      }
-    } catch {
-      // Keep existing recipients in signal
     }
   }
 
