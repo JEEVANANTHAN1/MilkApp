@@ -11,7 +11,7 @@
         <input
           class="search-bar__input"
           type="text"
-          placeholder="Search by date or vendor…"
+          placeholder="Search by date or recipient…"
           [(ngModel)]="searchQuery"
           aria-label="Search bills"
         />
@@ -36,71 +36,122 @@
     </div>
 
   } @else {
-    <!-- Summary chip -->
+    <!-- Total Summary chip -->
     <div class="list-summary">
       <span class="material-symbols-outlined">payments</span>
       Total: <strong>₹{{ milkBillService.totalSpent().toFixed(2) }}</strong>
     </div>
 
-    <section class="bill-list__items" aria-label="Bill records">
-      @for (bill of filteredBills(); track bill.id) {
-        <article class="bill-card" (click)="toggleExpand(bill.id)" [class.bill-card--expanded]="expandedId() === bill.id">
+    <!-- Grouped Deliveries by Date -->
+    <div class="date-groups" aria-label="Grouped deliveries">
+      @for (dGroup of groupedDeliveries(); track dGroup.date) {
+        <section class="date-group">
 
-          <!-- Main row -->
-          <div class="bill-card__main">
-            <div class="bill-card__left">
-              <p class="bill-card__date">{{ bill.billDate }}
-                <span class="shift-badge" [attr.title]="bill.shift">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }}</span>
-              </p>
-              @if (bill.vendorName) {
-                <p class="bill-card__vendor">{{ bill.vendorName }}</p>
-              }
+          <!-- Date Header -->
+          <div class="date-header">
+            <div class="date-header__title">
+              <span class="material-symbols-outlined date-header__icon">calendar_today</span>
+              <span>{{ dGroup.formattedDate }}</span>
             </div>
-            <div class="bill-card__right">
-              <span class="bill-card__amount">₹{{ bill.totalAmount }}</span>
-              <span class="bill-card__liters">{{ bill.quantityLiters }} L</span>
-            </div>
-            <div class="bill-card__actions">
-              <button class="bill-card__action" (click)="edit(bill.id, $event)" aria-label="Edit bill" title="Edit delivery">
-                <span class="material-symbols-outlined">edit</span>
-              </button>
-              <button class="bill-card__delete" (click)="delete(bill.id, $event)" aria-label="Delete bill" title="Delete delivery">
-                <span class="material-symbols-outlined">delete</span>
-              </button>
+            <div class="date-header__totals">
+              <span class="date-header__liters">{{ dGroup.totalLiters }} L</span>
+              <span class="date-header__amount">₹{{ dGroup.totalAmount.toFixed(2) }}</span>
             </div>
           </div>
 
-          <!-- Expanded detail -->
-          @if (expandedId() === bill.id) {
-            <div class="bill-card__expanded" (click)="$event.stopPropagation()">
-              @if (bill.imageUrl) {
-                <img class="bill-card__image" [src]="bill.imageUrl" alt="Bill from {{ bill.billDate }}" />
-              }
-              @if (bill.fatPercent != null || bill.snfPercent != null) {
-                <div class="bill-card__metrics">
-                  @if (bill.fatPercent != null) {
-                    <span class="metric-chip">FAT {{ bill.fatPercent }}%</span>
-                  }
-                  @if (bill.snfPercent != null) {
-                    <span class="metric-chip">SNF {{ bill.snfPercent }}%</span>
-                  }
-                </div>
-              }
-              @if (bill.memberCode || bill.memberName) {
-                <div class="bill-card__metrics">
-                  @if (bill.memberName) { <span class="metric-chip">{{ bill.memberName }}</span> }
-                  @if (bill.memberCode) { <span class="metric-chip">Code: {{ bill.memberCode }}</span> }
-                </div>
-              }
-              @if (bill.notes) {
-                <p class="bill-card__notes">{{ bill.notes }}</p>
-              }
-            </div>
-          }
+          <!-- Recipient Cards under Date -->
+          <div class="recipient-cards">
+            @for (rGroup of dGroup.recipientGroups; track rGroup.groupKey) {
+              <article
+                class="recipient-card"
+                [class.recipient-card--expanded]="expandedGroupKey() === rGroup.groupKey"
+                (click)="toggleGroup(rGroup.groupKey)">
 
-        </article>
+                <!-- Recipient Card Header (Collapsed Summary) -->
+                <div class="recipient-card__header">
+                  <div class="recipient-card__info">
+                    <div class="recipient-card__avatar">
+                      <span class="material-symbols-outlined">storefront</span>
+                    </div>
+                    <div>
+                      <h3 class="recipient-card__name">{{ rGroup.recipientName }}</h3>
+                      <p class="recipient-card__meta">
+                        {{ rGroup.bills.length }} {{ rGroup.bills.length === 1 ? 'delivery' : 'deliveries' }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="recipient-card__summary">
+                    <div class="recipient-card__amount">₹{{ rGroup.totalAmount.toFixed(2) }}</div>
+                    <div class="recipient-card__liters">{{ rGroup.totalLiters }} L</div>
+                  </div>
+
+                  <span class="material-symbols-outlined recipient-card__chevron">
+                    {{ expandedGroupKey() === rGroup.groupKey ? 'expand_less' : 'expand_more' }}
+                  </span>
+                </div>
+
+                <!-- Drill Down Detailed Deliveries -->
+                @if (expandedGroupKey() === rGroup.groupKey) {
+                  <div class="drilldown" (click)="$event.stopPropagation()">
+                    <div class="drilldown__title">
+                      <span>Shift Details</span>
+                    </div>
+
+                    <ul class="drilldown__list">
+                      @for (bill of rGroup.bills; track bill.id) {
+                        <li class="drilldown__item">
+                          <div class="drilldown__shift">
+                            <span class="shift-icon">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }}</span>
+                            <div>
+                              <span class="drilldown__shift-name">{{ bill.shift }}</span>
+                              <span class="drilldown__liters">{{ bill.quantityLiters }} L &#64; ₹{{ bill.ratePerLiter }}/L</span>
+                            </div>
+                          </div>
+
+                          <div class="drilldown__right">
+                            <span class="drilldown__amount">₹{{ bill.totalAmount }}</span>
+
+                            <div class="drilldown__actions">
+                              <button class="icon-btn icon-btn--edit" (click)="edit(bill.id, $event)" aria-label="Edit delivery" title="Edit delivery">
+                                <span class="material-symbols-outlined">edit</span>
+                              </button>
+                              <button class="icon-btn icon-btn--delete" (click)="delete(bill.id, $event)" aria-label="Delete delivery" title="Delete delivery">
+                                <span class="material-symbols-outlined">delete</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          <!-- Extra metrics & image -->
+                          @if (bill.fatPercent != null || bill.snfPercent != null || bill.notes || bill.imageUrl) {
+                            <div class="drilldown__extra">
+                              @if (bill.fatPercent != null || bill.snfPercent != null) {
+                                <div class="metric-tags">
+                                  @if (bill.fatPercent != null) { <span class="tag">FAT {{ bill.fatPercent }}%</span> }
+                                  @if (bill.snfPercent != null) { <span class="tag">SNF {{ bill.snfPercent }}%</span> }
+                                </div>
+                              }
+                              @if (bill.notes) {
+                                <p class="drilldown__notes">{{ bill.notes }}</p>
+                              }
+                              @if (bill.imageUrl) {
+                                <img class="drilldown__image" [src]="bill.imageUrl" alt="Bill image" />
+                              }
+                            </div>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+
+              </article>
+            }
+          </div>
+
+        </section>
       }
-    </section>
+    </div>
   }
 
 </div>
