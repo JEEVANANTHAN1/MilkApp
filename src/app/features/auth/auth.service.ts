@@ -49,15 +49,24 @@ export class AuthService {
   private readonly _user = signal<AuthUser | null>(this.loadStoredUser());
   private readonly _loading = signal(false);
   private readonly _error = signal<string | null>(null);
+  private initPromise: Promise<void> | null = null;
+  private autoRefreshTimer: any = null;
 
   readonly user = computed(() => this._user());
-  readonly isAuthenticated = computed(() => this._user() !== null && this.hasValidToken());
+  readonly isAuthenticated = computed(() => this._user() !== null && (this.hasValidToken() || !!this.getAccessToken()));
   readonly isLoading = computed(() => this._loading());
   readonly error = computed(() => this._error());
 
   constructor() {
     this.handleOAuthCallback();
-    this.checkAndRestoreSession();
+    this.initPromise = this.checkAndRestoreSession();
+  }
+
+  /** Await initialization so guards wait for session restoration before deciding to redirect */
+  async ensureInitialized(): Promise<void> {
+    if (this.initPromise) {
+      await this.initPromise;
+    }
   }
 
   /** Initiates Google OAuth Login via Supabase Auth */
@@ -109,6 +118,10 @@ export class AuthService {
   }
 
   logout(): void {
+    if (this.autoRefreshTimer) {
+      clearTimeout(this.autoRefreshTimer);
+      this.autoRefreshTimer = null;
+    }
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_KEY);
     localStorage.removeItem(USER_KEY);
@@ -164,8 +177,10 @@ export class AuthService {
   }
 
   private hasValidToken(): boolean {
+    const token = this.getAccessToken();
+    if (!token) return false;
     const expiry = localStorage.getItem(EXPIRY_KEY);
-    if (!expiry) return false;
+    if (!expiry) return true;
     return Date.now() < parseInt(expiry, 10);
   }
 
@@ -178,24 +193,59 @@ export class AuthService {
       return;
     }
 
+    // Schedule auto refresh based on existing expiry
+    const expiry = localStorage.getItem(EXPIRY_KEY);
+    if (expiry) {
+      const remainingSec = Math.floor((parseInt(expiry, 10) - Date.now()) / 1000);
+      if (remainingSec > 60) {
+        this.scheduleAutoRefresh(remainingSec);
+      }
+    }
+
     if (!this.hasValidToken() && refresh) {
       try {
         const tokens = await firstValueFrom(
           this.http.post<AuthTokens>(`${this.apiUrl}/refresh`, { refreshToken: refresh })
         );
-        this.storeTokens(tokens.accessToken, tokens.refreshToken, tokens.expiresIn, user);
+        this.storeTokens(tokens.accessToken, tokens.refreshToken || refresh, tokens.expiresIn, user);
         this._user.set(user);
-      } catch {
-        this.logout();
+      } catch (err) {
+        console.warn('[AuthService] Token refresh failed:', err);
+        // Only log out if token is truly invalid and cannot be parsed or expired
+        if (!this.hasValidToken()) {
+          this.logout();
+        }
       }
+    } else if (user) {
+      this._user.set(user);
     }
   }
 
   private storeTokens(accessToken: string, refreshToken: string, expiresIn: number, user: AuthUser): void {
     localStorage.setItem(TOKEN_KEY, accessToken);
-    localStorage.setItem(REFRESH_KEY, refreshToken);
-    localStorage.setItem(EXPIRY_KEY, String(Date.now() + expiresIn * 1000));
+    if (refreshToken) {
+      localStorage.setItem(REFRESH_KEY, refreshToken);
+    }
+
+    const payload = parseJwt(accessToken);
+    const expiryMs = payload && payload.exp ? payload.exp * 1000 : Date.now() + expiresIn * 1000;
+    localStorage.setItem(EXPIRY_KEY, String(expiryMs));
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+
+    const remainingSec = Math.floor((expiryMs - Date.now()) / 1000);
+    this.scheduleAutoRefresh(remainingSec);
+  }
+
+  private scheduleAutoRefresh(expiresInSeconds: number): void {
+    if (this.autoRefreshTimer) {
+      clearTimeout(this.autoRefreshTimer);
+      this.autoRefreshTimer = null;
+    }
+    // Refresh 5 minutes (300s) before token expires, minimum 10 seconds delay
+    const delayMs = Math.max(10000, (expiresInSeconds - 300) * 1000);
+    this.autoRefreshTimer = setTimeout(() => {
+      this.checkAndRestoreSession();
+    }, delayMs);
   }
 
   private loadStoredUser(): AuthUser | null {
@@ -207,3 +257,4 @@ export class AuthService {
     }
   }
 }
+

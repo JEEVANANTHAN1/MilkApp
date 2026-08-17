@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MilkBillService } from '../milk-bill.service';
 import { MilkBill } from '../models/milk-bill.model';
+import { MilkRecipientService } from '../../recipients/milk-recipient.service';
 
 export interface RecipientGroup {
   groupKey: string;
@@ -50,10 +51,22 @@ function formatDateLabel(dateStr: string): string {
 })
 export class MilkBillListComponent {
   readonly milkBillService = inject(MilkBillService);
+  readonly recipientService = inject(MilkRecipientService);
   private readonly router = inject(Router);
 
   expandedGroupKey = signal<string | null>(null);
   searchQuery = signal<string>('');
+
+  /** Resolves recipient name from recipient table by recipientId, with vendorName fallback */
+  private getRecipientName(bill: MilkBill): string {
+    if (bill.recipientId) {
+      const recipient = this.recipientService.allRecipients().find((r) => r.id === bill.recipientId);
+      if (recipient?.name) {
+        return recipient.name;
+      }
+    }
+    return bill.vendorName?.trim() || 'General / Unnamed';
+  }
 
   /** Bills filtered by search query */
   readonly filteredBills = computed(() => {
@@ -63,7 +76,8 @@ export class MilkBillListComponent {
     return bills.filter(
       (b) =>
         b.billDate.toLowerCase().includes(query) ||
-        (b.vendorName ?? '').toLowerCase().includes(query)
+        (b.vendorName ?? '').toLowerCase().includes(query) ||
+        this.getRecipientName(b).toLowerCase().includes(query)
     );
   });
 
@@ -74,7 +88,7 @@ export class MilkBillListComponent {
 
     for (const b of bills) {
       const dKey = b.billDate;
-      const rKey = b.vendorName?.trim() || 'General / Unnamed';
+      const rKey = this.getRecipientName(b);
 
       if (!dateMap.has(dKey)) {
         dateMap.set(dKey, new Map<string, MilkBill[]>());
