@@ -168,9 +168,7 @@
                     <p class="recent__date">{{ bill.billDate }}
                       <span class="shift-badge" [attr.title]="bill.shift">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }}</span>
                     </p>
-                    <p class="recent__detail">{{ bill.quantityLiters }} L
-                      @if (bill.vendorName) { · {{ bill.vendorName }} }
-                    </p>
+                    <p class="recent__detail">{{ bill.quantityLiters }} L</p>
                   </div>
                 </div>
                 <div class="recent__amount">₹{{ bill.totalAmount }}</div>

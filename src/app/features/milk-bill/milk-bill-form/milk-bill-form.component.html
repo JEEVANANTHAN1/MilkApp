@@ -164,25 +164,11 @@
     <!-- Advanced details accordion -->
     <details class="accordion">
       <summary class="accordion__toggle">
-        <span class="accordion__label">Advanced Details <small>(Quality &amp; Vendor)</small></span>
+        <span class="accordion__label">Advanced Details <small>(Quality &amp; Notes)</small></span>
         <span class="material-symbols-outlined accordion__arrow">expand_more</span>
       </summary>
 
       <div class="form-card accordion__body">
-
-        <!-- Vendor name -->
-        <div class="field">
-          <label class="field__label" for="vendor_name">Vendor Name</label>
-          <input
-            id="vendor_name"
-            class="field__input"
-            type="text"
-            placeholder="e.g. Aavin, local dairy"
-            [ngModel]="vendorName()"
-            (ngModelChange)="updateVendorName($event)"
-            name="vendorName"
-          />
-        </div>
 
         <!-- FAT & SNF row -->
         <div class="field-row">
@@ -214,34 +200,6 @@
               [ngModel]="snfPercent()"
               (ngModelChange)="updateSnfPercent($event)"
               name="snfPercent"
-            />
-          </div>
-        </div>
-
-        <!-- Member code & name row -->
-        <div class="field-row">
-          <div class="field">
-            <label class="field__label" for="member_code">Member Code</label>
-            <input
-              id="member_code"
-              class="field__input"
-              type="text"
-              placeholder="e.g. 031 CM"
-              [ngModel]="memberCode()"
-              (ngModelChange)="updateMemberCode($event)"
-              name="memberCode"
-            />
-          </div>
-          <div class="field">
-            <label class="field__label" for="member_name">Member Name</label>
-            <input
-              id="member_name"
-              class="field__input"
-              type="text"
-              placeholder="e.g. Murugan"
-              [ngModel]="memberName()"
-              (ngModelChange)="updateMemberName($event)"
-              name="memberName"
             />
           </div>
         </div>

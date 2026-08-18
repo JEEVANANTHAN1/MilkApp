@@ -3,11 +3,8 @@ export interface ParsedBillFields {
   quantityLiters: number | null;
   ratePerLiter: number | null;
   totalAmount: number | null;
-  vendorName: string | null;
   fatPercent: number | null;
   snfPercent: number | null;
-  memberCode: string | null;
-  memberName: string | null;
 }
 
 const MONTHS: Record<string, number> = {
@@ -30,11 +27,8 @@ export function parseBillText(rawText: string): ParsedBillFields {
     quantityLiters: parseQuantity(flat),
     ratePerLiter: parseRate(flat),
     totalAmount: parseTotal(flat),
-    vendorName: parseVendorName(text),
     fatPercent: parseFat(flat),
     snfPercent: parseSnf(flat),
-    memberCode: parseLabeledLine(text, /^member\s*code\s*[:\-]?\s*(.+)$/i),
-    memberName: parseLabeledLine(text, /^name\s*[:\-]?\s*(.+)$/i),
   };
 }
 
@@ -112,14 +106,6 @@ function parseTotal(text: string): number | null {
   return null;
 }
 
-function parseVendorName(text: string): string | null {
-  // Heuristic: first non-empty line that looks like a name (letters, spaces,
-  // no digits) is often the dairy/vendor name on a printed slip.
-  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
-  const nameLine = lines.find((line) => /^[A-Za-z][A-Za-z .&'-]{2,40}$/.test(line));
-  return nameLine ?? null;
-}
-
 function parseFat(text: string): number | null {
   const m = text.match(/\bfat\s*[:\-]?\s*(\d+(?:\.\d+)?)/i);
   return m ? Number(m[1]) : null;
@@ -128,14 +114,4 @@ function parseFat(text: string): number | null {
 function parseSnf(text: string): number | null {
   const m = text.match(/\bsnf\s*[:\-]?\s*(\d+(?:\.\d+)?)/i);
   return m ? Number(m[1]) : null;
-}
-
-/** Finds the first line matching `pattern` (e.g. "Member Code: 031 CM") and returns its captured remainder, trimmed */
-function parseLabeledLine(text: string, pattern: RegExp): string | null {
-  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
-  for (const line of lines) {
-    const m = line.match(pattern);
-    if (m) return m[1].trim();
-  }
-  return null;
 }

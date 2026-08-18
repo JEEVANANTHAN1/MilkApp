@@ -61,12 +61,7 @@ export class RecipientDetailComponent implements OnInit {
   /** All bills logged for this recipient */
   recipientBills = computed(() => {
     const rId = this.recipientId();
-    const rName = this.recipient()?.name.toLowerCase();
-    return this.milkBillService.allBills().filter((b) => {
-      if (b.recipientId && b.recipientId === rId) return true;
-      if (rName && b.vendorName?.trim().toLowerCase() === rName) return true;
-      return false;
-    });
+    return this.milkBillService.allBills().filter((b) => b.recipientId === rId);
   });
 
   /** Filtered bills for selected month */

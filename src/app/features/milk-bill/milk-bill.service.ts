@@ -128,11 +128,8 @@ export class MilkBillService {
         formData.append('ratePerLiter', String(b.ratePerLiter));
         formData.append('totalAmount', String(b.totalAmount));
         formData.append('fatPercent', String(b.fatPercent ?? 0));
-        if (b.vendorName) formData.append('vendorName', b.vendorName);
         if (b.recipientId) formData.append('recipientId', b.recipientId);
         if (b.snfPercent != null) formData.append('snfPercent', String(b.snfPercent));
-        if (b.memberCode) formData.append('memberCode', b.memberCode);
-        if (b.memberName) formData.append('memberName', b.memberName);
         if (b.notes) formData.append('notes', b.notes);
 
         await firstValueFrom(this.http.post<MilkBill>(this.apiUrl, formData));
@@ -197,11 +194,8 @@ export class MilkBillService {
     formData.append('ratePerLiter', String(draft.ratePerLiter));
     formData.append('totalAmount', String(draft.totalAmount));
     formData.append('fatPercent', String(draft.fatPercent ?? 0));
-    if (draft.vendorName) formData.append('vendorName', draft.vendorName);
     if (draft.recipientId) formData.append('recipientId', draft.recipientId);
     if (draft.snfPercent != null) formData.append('snfPercent', String(draft.snfPercent));
-    if (draft.memberCode) formData.append('memberCode', draft.memberCode);
-    if (draft.memberName) formData.append('memberName', draft.memberName);
     if (draft.notes) formData.append('notes', draft.notes);
     if (imageFile) formData.append('image', imageFile);
 
@@ -235,11 +229,8 @@ export class MilkBillService {
     formData.append('ratePerLiter', String(draft.ratePerLiter));
     formData.append('totalAmount', String(draft.totalAmount));
     formData.append('fatPercent', String(draft.fatPercent ?? 0));
-    if (draft.vendorName) formData.append('vendorName', draft.vendorName);
     if (draft.recipientId) formData.append('recipientId', draft.recipientId);
     if (draft.snfPercent != null) formData.append('snfPercent', String(draft.snfPercent));
-    if (draft.memberCode) formData.append('memberCode', draft.memberCode);
-    if (draft.memberName) formData.append('memberName', draft.memberName);
     if (draft.notes) formData.append('notes', draft.notes);
     if (imageFile) formData.append('image', imageFile);
 

@@ -61,7 +61,7 @@ export class MilkBillListComponent implements AfterViewInit, OnDestroy {
   searchQuery = signal<string>('');
   visibleCount = signal<number>(10);
 
-  /** Resolves recipient name from recipient table by recipientId, with vendorName fallback */
+  /** Resolves recipient name from recipient table by recipientId */
   private getRecipientName(bill: MilkBill): string {
     if (bill.recipientId) {
       const recipient = this.recipientService.allRecipients().find((r) => r.id === bill.recipientId);
@@ -69,7 +69,7 @@ export class MilkBillListComponent implements AfterViewInit, OnDestroy {
         return recipient.name;
       }
     }
-    return bill.vendorName?.trim() || 'General / Unnamed';
+    return 'General / Unnamed';
   }
 
   /** Bills filtered by search query */
@@ -80,7 +80,6 @@ export class MilkBillListComponent implements AfterViewInit, OnDestroy {
     return bills.filter(
       (b) =>
         b.billDate.toLowerCase().includes(query) ||
-        (b.vendorName ?? '').toLowerCase().includes(query) ||
         this.getRecipientName(b).toLowerCase().includes(query)
     );
   });

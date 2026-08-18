@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MilkBillService } from '../../../features/milk-bill/milk-bill.service';
 
@@ -11,6 +11,7 @@ import { MilkBillService } from '../../../features/milk-bill/milk-bill.service';
 })
 export class InitialLoadingScreenComponent {
   protected readonly milkBillService = inject(MilkBillService);
+  protected readonly isExiting = signal(false);
 
   /** Estimated progress percentage (0 - 100%) based on 50-second typical cold start */
   protected readonly progressPercent = computed(() => {

@@ -44,11 +44,8 @@ export class MilkBillFormComponent {
   quantityLiters = signal<number | null>(null);
   ratePerLiter = signal<number | null>(null);
   totalAmountOverride = signal<number | null>(null);
-  vendorName = signal<string>('');
   fatPercent = signal<number | null>(null);
   snfPercent = signal<number | null>(null);
-  memberCode = signal<string>('');
-  memberName = signal<string>('');
   notes = signal<string>('');
 
   isSaving = signal(false);
@@ -66,11 +63,8 @@ export class MilkBillFormComponent {
         this.quantityLiters.set(bill.quantityLiters);
         this.ratePerLiter.set(bill.ratePerLiter);
         this.totalAmountOverride.set(bill.totalAmount);
-        if (bill.vendorName) this.vendorName.set(bill.vendorName);
         if (bill.fatPercent != null) this.fatPercent.set(bill.fatPercent);
         if (bill.snfPercent != null) this.snfPercent.set(bill.snfPercent);
-        if (bill.memberCode) this.memberCode.set(bill.memberCode);
-        if (bill.memberName) this.memberName.set(bill.memberName);
         if (bill.notes) this.notes.set(bill.notes);
         if (bill.imageUrl) this.imagePreviewUrl.set(bill.imageUrl);
       }
@@ -124,10 +118,6 @@ export class MilkBillFormComponent {
 
   updateRecipientId(value: string): void {
     this.recipientId.set(value);
-    const selected = this.activeRecipients().find((r) => r.id === value);
-    if (selected && !this.vendorName()) {
-      this.vendorName.set(selected.name);
-    }
   }
 
   updateBillDate(value: string): void {
@@ -146,24 +136,12 @@ export class MilkBillFormComponent {
     this.ratePerLiter.set(value);
   }
 
-  updateVendorName(value: string): void {
-    this.vendorName.set(value);
-  }
-
   updateFatPercent(value: number | null): void {
     this.fatPercent.set(value);
   }
 
   updateSnfPercent(value: number | null): void {
     this.snfPercent.set(value);
-  }
-
-  updateMemberCode(value: string): void {
-    this.memberCode.set(value);
-  }
-
-  updateMemberName(value: string): void {
-    this.memberName.set(value);
   }
 
   onTotalOverrideChange(value: string): void {
@@ -176,9 +154,6 @@ export class MilkBillFormComponent {
     this.isSaving.set(true);
     this.errorMessage.set(null);
 
-    const selectedRecipient = this.activeRecipients().find((r) => r.id === this.recipientId());
-    const resolvedVendorName = this.vendorName().trim() || selectedRecipient?.name;
-
     const draft: MilkBillDraft = {
       billDate: this.billDate(),
       shift: this.shift(),
@@ -186,11 +161,8 @@ export class MilkBillFormComponent {
       ratePerLiter: this.ratePerLiter()!,
       totalAmount: this.effectiveTotal()!,
       recipientId: this.recipientId() || undefined,
-      vendorName: resolvedVendorName || undefined,
       fatPercent: this.fatPercent() ?? undefined,
       snfPercent: this.snfPercent() ?? undefined,
-      memberCode: this.memberCode().trim() || undefined,
-      memberName: this.memberName().trim() || undefined,
       notes: this.notes().trim() || undefined,
     };
 
@@ -217,4 +189,3 @@ export class MilkBillFormComponent {
     });
   }
 }
-
