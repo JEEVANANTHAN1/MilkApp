@@ -12,7 +12,8 @@
           class="search-bar__input"
           type="text"
           placeholder="Search by date or recipient…"
-          [(ngModel)]="searchQuery"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchQueryChange($event)"
           aria-label="Search bills"
         />
       </div>
@@ -42,9 +43,9 @@
       Total: <strong>₹{{ milkBillService.totalSpent().toFixed(2) }}</strong>
     </div>
 
-    <!-- Grouped Deliveries by Date -->
+    <!-- Grouped Deliveries by Date (Lazy Loaded) -->
     <div class="date-groups" aria-label="Grouped deliveries">
-      @for (dGroup of groupedDeliveries(); track dGroup.date) {
+      @for (dGroup of visibleGroupedDeliveries(); track dGroup.date) {
         <section class="date-group">
 
           <!-- Date Header -->
@@ -91,58 +92,66 @@
                   </span>
                 </div>
 
-                <!-- Drill Down Detailed Deliveries -->
+                <!-- Drill Down Detailed Deliveries (Lazy Deferred) -->
                 @if (expandedGroupKey() === rGroup.groupKey) {
-                  <div class="drilldown" (click)="$event.stopPropagation()">
-                    <div class="drilldown__title">
-                      <span>Shift Details</span>
+                  @defer (on interaction) {
+                    <div class="drilldown" (click)="$event.stopPropagation()">
+                      <div class="drilldown__title">
+                        <span>Shift Details</span>
+                      </div>
+
+                      <ul class="drilldown__list">
+                        @for (bill of rGroup.bills; track bill.id) {
+                          <li class="drilldown__item">
+                            <div class="drilldown__shift">
+                              <span class="shift-icon">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }}</span>
+                              <div>
+                                <span class="drilldown__shift-name">{{ bill.shift }}</span>
+                                <span class="drilldown__liters">{{ bill.quantityLiters }} L &#64; ₹{{ bill.ratePerLiter }}/L</span>
+                              </div>
+                            </div>
+
+                            <div class="drilldown__right">
+                              <span class="drilldown__amount">₹{{ bill.totalAmount }}</span>
+
+                              <div class="drilldown__actions">
+                                <button class="icon-btn icon-btn--edit" (click)="edit(bill.id, $event)" aria-label="Edit delivery" title="Edit delivery">
+                                  <span class="material-symbols-outlined">edit</span>
+                                </button>
+                                <button class="icon-btn icon-btn--delete" (click)="delete(bill.id, $event)" aria-label="Delete delivery" title="Delete delivery">
+                                  <span class="material-symbols-outlined">delete</span>
+                                </button>
+                              </div>
+                            </div>
+
+                            <!-- Extra metrics & image -->
+                            @if (bill.fatPercent != null || bill.snfPercent != null || bill.notes || bill.imageUrl) {
+                              <div class="drilldown__extra">
+                                @if (bill.fatPercent != null || bill.snfPercent != null) {
+                                  <div class="metric-tags">
+                                    @if (bill.fatPercent != null) { <span class="tag">FAT {{ bill.fatPercent }}%</span> }
+                                    @if (bill.snfPercent != null) { <span class="tag">SNF {{ bill.snfPercent }}%</span> }
+                                  </div>
+                                }
+                                @if (bill.notes) {
+                                  <p class="drilldown__notes">{{ bill.notes }}</p>
+                                }
+                                @if (bill.imageUrl) {
+                                  <img class="drilldown__image" [src]="bill.imageUrl" alt="Bill image" loading="lazy" decoding="async" />
+                                }
+                              </div>
+                            }
+                          </li>
+                        }
+                      </ul>
                     </div>
-
-                    <ul class="drilldown__list">
-                      @for (bill of rGroup.bills; track bill.id) {
-                        <li class="drilldown__item">
-                          <div class="drilldown__shift">
-                            <span class="shift-icon">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }}</span>
-                            <div>
-                              <span class="drilldown__shift-name">{{ bill.shift }}</span>
-                              <span class="drilldown__liters">{{ bill.quantityLiters }} L &#64; ₹{{ bill.ratePerLiter }}/L</span>
-                            </div>
-                          </div>
-
-                          <div class="drilldown__right">
-                            <span class="drilldown__amount">₹{{ bill.totalAmount }}</span>
-
-                            <div class="drilldown__actions">
-                              <button class="icon-btn icon-btn--edit" (click)="edit(bill.id, $event)" aria-label="Edit delivery" title="Edit delivery">
-                                <span class="material-symbols-outlined">edit</span>
-                              </button>
-                              <button class="icon-btn icon-btn--delete" (click)="delete(bill.id, $event)" aria-label="Delete delivery" title="Delete delivery">
-                                <span class="material-symbols-outlined">delete</span>
-                              </button>
-                            </div>
-                          </div>
-
-                          <!-- Extra metrics & image -->
-                          @if (bill.fatPercent != null || bill.snfPercent != null || bill.notes || bill.imageUrl) {
-                            <div class="drilldown__extra">
-                              @if (bill.fatPercent != null || bill.snfPercent != null) {
-                                <div class="metric-tags">
-                                  @if (bill.fatPercent != null) { <span class="tag">FAT {{ bill.fatPercent }}%</span> }
-                                  @if (bill.snfPercent != null) { <span class="tag">SNF {{ bill.snfPercent }}%</span> }
-                                </div>
-                              }
-                              @if (bill.notes) {
-                                <p class="drilldown__notes">{{ bill.notes }}</p>
-                              }
-                              @if (bill.imageUrl) {
-                                <img class="drilldown__image" [src]="bill.imageUrl" alt="Bill image" />
-                              }
-                            </div>
-                          }
-                        </li>
-                      }
-                    </ul>
-                  </div>
+                  } @placeholder {
+                    <div class="drilldown" (click)="$event.stopPropagation()">
+                      <span class="empty-msg">Click to expand shift details…</span>
+                    </div>
+                  } @loading {
+                    <p class="empty-msg">Loading shift details…</p>
+                  }
                 }
 
               </article>
@@ -152,6 +161,16 @@
         </section>
       }
     </div>
+
+    <!-- Infinite Scroll Sentinel & Load More Trigger -->
+    @if (hasMore()) {
+      <div class="load-more-container" #loadMoreSentinel>
+        <button class="load-more-btn" (click)="loadMore()">
+          <span class="material-symbols-outlined">expand_more</span>
+          Load More Deliveries (Showing {{ visibleGroupedDeliveries().length }} of {{ totalCount() }})
+        </button>
+      </div>
+    }
   }
 
 </div>

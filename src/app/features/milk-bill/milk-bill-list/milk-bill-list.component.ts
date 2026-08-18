@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -49,13 +49,17 @@ function formatDateLabel(dateStr: string): string {
   templateUrl: './milk-bill-list.component.html',
   styleUrl: './milk-bill-list.component.scss',
 })
-export class MilkBillListComponent {
+export class MilkBillListComponent implements AfterViewInit, OnDestroy {
   readonly milkBillService = inject(MilkBillService);
   readonly recipientService = inject(MilkRecipientService);
   private readonly router = inject(Router);
 
+  @ViewChild('loadMoreSentinel') loadMoreSentinel?: ElementRef<HTMLElement>;
+  private observer?: IntersectionObserver;
+
   expandedGroupKey = signal<string | null>(null);
   searchQuery = signal<string>('');
+  visibleCount = signal<number>(10);
 
   /** Resolves recipient name from recipient table by recipientId, with vendorName fallback */
   private getRecipientName(bill: MilkBill): string {
@@ -146,6 +150,50 @@ export class MilkBillListComponent {
 
     return result;
   });
+
+  /** Lazy-loaded subset of date groups for performance */
+  readonly visibleGroupedDeliveries = computed(() =>
+    this.groupedDeliveries().slice(0, this.visibleCount())
+  );
+
+  readonly hasMore = computed(() => this.groupedDeliveries().length > this.visibleCount());
+  readonly totalCount = computed(() => this.groupedDeliveries().length);
+
+  ngAfterViewInit(): void {
+    this.setupIntersectionObserver();
+  }
+
+  ngOnDestroy(): void {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+
+  private setupIntersectionObserver(): void {
+    if (typeof IntersectionObserver === 'undefined') return;
+
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && this.hasMore()) {
+          this.loadMore();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    if (this.loadMoreSentinel?.nativeElement) {
+      this.observer.observe(this.loadMoreSentinel.nativeElement);
+    }
+  }
+
+  onSearchQueryChange(query: string): void {
+    this.searchQuery.set(query);
+    this.visibleCount.set(10);
+  }
+
+  loadMore(): void {
+    this.visibleCount.update((c) => c + 10);
+  }
 
   toggleGroup(groupKey: string): void {
     this.expandedGroupKey.update((current) => (current === groupKey ? null : groupKey));
