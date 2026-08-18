@@ -92,66 +92,58 @@
                   </span>
                 </div>
 
-                <!-- Drill Down Detailed Deliveries (Lazy Deferred) -->
+                <!-- Drill Down Detailed Deliveries -->
                 @if (expandedGroupKey() === rGroup.groupKey) {
-                  @defer (on interaction) {
-                    <div class="drilldown" (click)="$event.stopPropagation()">
-                      <div class="drilldown__title">
-                        <span>Shift Details</span>
-                      </div>
-
-                      <ul class="drilldown__list">
-                        @for (bill of rGroup.bills; track bill.id) {
-                          <li class="drilldown__item">
-                            <div class="drilldown__shift">
-                              <span class="shift-icon">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }}</span>
-                              <div>
-                                <span class="drilldown__shift-name">{{ bill.shift }}</span>
-                                <span class="drilldown__liters">{{ bill.quantityLiters }} L &#64; ₹{{ bill.ratePerLiter }}/L</span>
-                              </div>
-                            </div>
-
-                            <div class="drilldown__right">
-                              <span class="drilldown__amount">₹{{ bill.totalAmount }}</span>
-
-                              <div class="drilldown__actions">
-                                <button class="icon-btn icon-btn--edit" (click)="edit(bill.id, $event)" aria-label="Edit delivery" title="Edit delivery">
-                                  <span class="material-symbols-outlined">edit</span>
-                                </button>
-                                <button class="icon-btn icon-btn--delete" (click)="delete(bill.id, $event)" aria-label="Delete delivery" title="Delete delivery">
-                                  <span class="material-symbols-outlined">delete</span>
-                                </button>
-                              </div>
-                            </div>
-
-                            <!-- Extra metrics & image -->
-                            @if (bill.fatPercent != null || bill.snfPercent != null || bill.notes || bill.imageUrl) {
-                              <div class="drilldown__extra">
-                                @if (bill.fatPercent != null || bill.snfPercent != null) {
-                                  <div class="metric-tags">
-                                    @if (bill.fatPercent != null) { <span class="tag">FAT {{ bill.fatPercent }}%</span> }
-                                    @if (bill.snfPercent != null) { <span class="tag">SNF {{ bill.snfPercent }}%</span> }
-                                  </div>
-                                }
-                                @if (bill.notes) {
-                                  <p class="drilldown__notes">{{ bill.notes }}</p>
-                                }
-                                @if (bill.imageUrl) {
-                                  <img class="drilldown__image" [src]="bill.imageUrl" alt="Bill image" loading="lazy" decoding="async" />
-                                }
-                              </div>
-                            }
-                          </li>
-                        }
-                      </ul>
+                  <div class="drilldown" (click)="$event.stopPropagation()">
+                    <div class="drilldown__title">
+                      <span>Shift Details</span>
                     </div>
-                  } @placeholder {
-                    <div class="drilldown" (click)="$event.stopPropagation()">
-                      <span class="empty-msg">Click to expand shift details…</span>
-                    </div>
-                  } @loading {
-                    <p class="empty-msg">Loading shift details…</p>
-                  }
+
+                    <ul class="drilldown__list">
+                      @for (bill of rGroup.bills; track bill.id) {
+                        <li class="drilldown__item">
+                          <div class="drilldown__shift">
+                            <span class="shift-icon">{{ bill.shift === 'Morning' ? '🌅' : '🌆' }}</span>
+                            <div>
+                              <span class="drilldown__shift-name">{{ bill.shift }}</span>
+                              <span class="drilldown__liters">{{ bill.quantityLiters }} L &#64; ₹{{ bill.ratePerLiter }}/L</span>
+                            </div>
+                          </div>
+
+                          <div class="drilldown__right">
+                            <span class="drilldown__amount">₹{{ bill.totalAmount }}</span>
+
+                            <div class="drilldown__actions">
+                              <button class="icon-btn icon-btn--edit" (click)="edit(bill.id, $event)" aria-label="Edit delivery" title="Edit delivery">
+                                <span class="material-symbols-outlined">edit</span>
+                              </button>
+                              <button class="icon-btn icon-btn--delete" (click)="delete(bill.id, $event)" aria-label="Delete delivery" title="Delete delivery">
+                                <span class="material-symbols-outlined">delete</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          <!-- Extra metrics & image -->
+                          @if (bill.fatPercent != null || bill.snfPercent != null || bill.notes || bill.imageUrl) {
+                            <div class="drilldown__extra">
+                              @if (bill.fatPercent != null || bill.snfPercent != null) {
+                                <div class="metric-tags">
+                                  @if (bill.fatPercent != null) { <span class="tag">FAT {{ bill.fatPercent }}%</span> }
+                                  @if (bill.snfPercent != null) { <span class="tag">SNF {{ bill.snfPercent }}%</span> }
+                                </div>
+                              }
+                              @if (bill.notes) {
+                                <p class="drilldown__notes">{{ bill.notes }}</p>
+                              }
+                              @if (bill.imageUrl) {
+                                <img class="drilldown__image" [src]="bill.imageUrl" alt="Bill image" loading="lazy" decoding="async" />
+                              }
+                            </div>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  </div>
                 }
 
               </article>
