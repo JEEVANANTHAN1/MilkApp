@@ -18,13 +18,20 @@
       <p class="subtitle">Milk Delivery History & Attendance Matrix</p>
     </div>
 
-    @if (recipient(); as r) {
-      <button class="status-toggle-btn" (click)="toggleRecipientStatus()" title="Toggle Active / Inactive Status">
-        <span class="material-symbols-outlined">
-          {{ r.status === 'Active' ? 'toggle_on' : 'toggle_off' }}
-        </span>
+    <div class="header-actions">
+      <button class="export-bill-btn" (click)="openExportModal()" title="Export Milk Bill Statement">
+        <span class="material-symbols-outlined">receipt_long</span>
+        <span>Export Bill</span>
       </button>
-    }
+
+      @if (recipient(); as r) {
+        <button class="status-toggle-btn" (click)="toggleRecipientStatus()" title="Toggle Active / Inactive Status">
+          <span class="material-symbols-outlined">
+            {{ r.status === 'Active' ? 'toggle_on' : 'toggle_off' }}
+          </span>
+        </button>
+      }
+    </div>
   </header>
 
   <!-- Summary Bento Stats -->
@@ -208,5 +215,13 @@
       </ul>
     }
   </section>
+
+  <!-- Export Bill Modal -->
+  <app-export-bill-modal
+    [recipient]="recipient() || null"
+    [isOpen]="isExportModalOpen()"
+    [initialMonth]="selectedMonth()"
+    (closeModal)="closeExportModal()">
+  </app-export-bill-modal>
 
 </div>

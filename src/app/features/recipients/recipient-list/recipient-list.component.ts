@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MilkRecipientService } from '../milk-recipient.service';
 import { MilkRecipient } from '../models/milk-recipient.model';
+import { ExportBillModalComponent } from '../export-bill-modal/export-bill-modal.component';
 
 @Component({
   selector: 'app-recipient-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ExportBillModalComponent],
   templateUrl: './recipient-list.component.html',
   styleUrl: './recipient-list.component.scss',
 })
@@ -22,6 +23,9 @@ export class RecipientListComponent {
   statusInput = signal<'Active' | 'Inactive'>('Active');
   formError = signal<string | null>(null);
   isSaving = signal<boolean>(false);
+
+  exportRecipient = signal<MilkRecipient | null>(null);
+  isExportModalOpen = signal<boolean>(false);
 
   filteredRecipients = computed(() => {
     const query = this.searchQuery().trim().toLowerCase();
@@ -92,5 +96,16 @@ export class RecipientListComponent {
     if (confirm(`Are you sure you want to delete recipient "${name}"?`)) {
       await this.recipientService.deleteRecipient(id);
     }
+  }
+
+  openExportModal(recipient: MilkRecipient, event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    this.exportRecipient.set(recipient);
+    this.isExportModalOpen.set(true);
+  }
+
+  closeExportModal(): void {
+    this.isExportModalOpen.set(false);
+    this.exportRecipient.set(null);
   }
 }

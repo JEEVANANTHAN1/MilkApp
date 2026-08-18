@@ -125,6 +125,13 @@
           </div>
 
           <div class="recipient-card__actions">
+            <!-- Export Bill button -->
+            <button
+              class="action-btn action-btn--export"
+              title="Export Bill Statement"
+              (click)="openExportModal(recipient, $event)">
+              <span class="material-symbols-outlined">receipt_long</span>
+            </button>
             <!-- Toggle Status button -->
             <button
               class="action-btn"
@@ -147,5 +154,12 @@
       }
     }
   </section>
+
+  <!-- Export Bill Modal -->
+  <app-export-bill-modal
+    [recipient]="exportRecipient()"
+    [isOpen]="isExportModalOpen()"
+    (closeModal)="closeExportModal()">
+  </app-export-bill-modal>
 
 </div>

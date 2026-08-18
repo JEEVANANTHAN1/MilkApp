@@ -1,0 +1,251 @@
+@if (isOpen) {
+  <div class="modal-overlay" (click)="close()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <header class="modal-header no-print">
+        <div class="header-title">
+          <span class="material-symbols-outlined header-icon">receipt_long</span>
+          <div>
+            <h3 class="title">Export Milk Bill</h3>
+            <p class="subtitle">{{ recipient?.name || 'Recipient Statement' }}</p>
+          </div>
+        </div>
+        <button class="icon-btn" (click)="close()" aria-label="Close modal">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      <!-- Date Filter Controls -->
+      <section class="filter-section no-print">
+        <label class="section-label">Select Date Range</label>
+        
+        <!-- Preset Pills -->
+        <div class="preset-pills">
+          <button
+            type="button"
+            class="pill-btn"
+            [class.pill-btn--active]="selectedPreset() === 'this_month'"
+            (click)="setPreset('this_month')">
+            This Month
+          </button>
+
+          <button
+            type="button"
+            class="pill-btn"
+            [class.pill-btn--active]="selectedPreset() === 'last_month'"
+            (click)="setPreset('last_month')">
+            Last Month
+          </button>
+
+          <button
+            type="button"
+            class="pill-btn"
+            [class.pill-btn--active]="selectedPreset() === 'last_30_days'"
+            (click)="setPreset('last_30_days')">
+            Last 30 Days
+          </button>
+
+          <button
+            type="button"
+            class="pill-btn"
+            [class.pill-btn--active]="selectedPreset() === 'all_time'"
+            (click)="setPreset('all_time')">
+            All Time
+          </button>
+
+          <button
+            type="button"
+            class="pill-btn"
+            [class.pill-btn--active]="selectedPreset() === 'custom'"
+            (click)="setPreset('custom')">
+            Custom Range
+          </button>
+        </div>
+
+        <!-- Date Inputs -->
+        <div class="date-inputs-row">
+          <div class="date-field">
+            <label for="start_date">From Date</label>
+            <input
+              id="start_date"
+              type="date"
+              class="date-input"
+              [ngModel]="startDate()"
+              (ngModelChange)="startDate.set($event); onCustomDateChange()"
+            />
+          </div>
+
+          <div class="date-field">
+            <label for="end_date">To Date</label>
+            <input
+              id="end_date"
+              type="date"
+              class="date-input"
+              [ngModel]="endDate()"
+              (ngModelChange)="endDate.set($event); onCustomDateChange()"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- Live Summary Cards -->
+      <section class="summary-cards no-print">
+        <div class="summary-card">
+          <span class="summary-label">Total Volume</span>
+          <span class="summary-value">{{ totalLiters().toFixed(1) }} <small>L</small></span>
+        </div>
+        <div class="summary-card highlight">
+          <span class="summary-label">Total Amount</span>
+          <span class="summary-value">₹{{ totalAmount().toFixed(2) }}</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Avg Rate</span>
+          <span class="summary-value">₹{{ avgRate().toFixed(2) }}<small>/L</small></span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Deliveries</span>
+          <span class="summary-value">{{ deliveryDaysCount() }} <small>days</small></span>
+        </div>
+      </section>
+
+      <!-- Export Actions Bar -->
+      <section class="export-actions-bar no-print">
+        <button type="button" class="action-btn action-btn--primary" (click)="printStatement()">
+          <span class="material-symbols-outlined">print</span>
+          Print / PDF Bill
+        </button>
+
+        <button type="button" class="action-btn action-btn--secondary" (click)="exportCsv()">
+          <span class="material-symbols-outlined">csv</span>
+          Export CSV
+        </button>
+
+        <button type="button" class="action-btn action-btn--outline" (click)="copyTextSummary()">
+          <span class="material-symbols-outlined">content_copy</span>
+          {{ copiedToast() ? 'Copied to Clipboard! ✓' : 'Copy Text (WhatsApp)' }}
+        </button>
+      </section>
+
+      <!-- Itemized Statement Preview Table -->
+      <section class="preview-section no-print">
+        <div class="preview-header">
+          <h4>Statement Preview ({{ filteredBills().length }} records)</h4>
+        </div>
+
+        @if (filteredBills().length === 0) {
+          <p class="empty-state">No milk delivery records found for recipient in the selected date range.</p>
+        } @else {
+          <div class="table-container">
+            <table class="statement-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Shift</th>
+                  <th>Quantity</th>
+                  <th>Rate</th>
+                  <th>FAT / SNF</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (bill of filteredBills(); track bill.id) {
+                  <tr>
+                    <td>{{ bill.billDate }}</td>
+                    <td>
+                      <span class="shift-badge" [class.shift-badge--morning]="bill.shift === 'Morning'" [class.shift-badge--evening]="bill.shift === 'Evening'">
+                        {{ bill.shift === 'Morning' ? '🌅 Morning' : '🌆 Evening' }}
+                      </span>
+                    </td>
+                    <td>{{ bill.quantityLiters }} L</td>
+                    <td>₹{{ bill.ratePerLiter }}</td>
+                    <td>
+                      @if (bill.fatPercent || bill.snfPercent) {
+                        <span>{{ bill.fatPercent ?? '-' }}% / {{ bill.snfPercent ?? '-' }}%</span>
+                      } @else {
+                        <span class="muted">-</span>
+                      }
+                    </td>
+                    <td class="amount-cell">₹{{ bill.totalAmount }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="2"><strong>TOTAL SUMMARY</strong></td>
+                  <td><strong>{{ totalLiters().toFixed(1) }} L</strong></td>
+                  <td><strong>₹{{ avgRate().toFixed(2) }}/L</strong></td>
+                  <td>-</td>
+                  <td class="amount-cell"><strong>₹{{ totalAmount().toFixed(2) }}</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        }
+      </section>
+
+      <!-- Printable Invoice Section (Visible in Print View) -->
+      <section class="printable-invoice print-only">
+        <div class="invoice-header">
+          <div class="brand">
+            <h2>🥛 AGRO-FRESH DAIRY</h2>
+            <p>Milk Delivery Invoice & Statement</p>
+          </div>
+          <div class="invoice-meta">
+            <p><strong>Statement Date:</strong> {{ endDate() || 'Current' }}</p>
+            <p><strong>Period:</strong> {{ startDate() || 'Beginning' }} to {{ endDate() || 'Today' }}</p>
+          </div>
+        </div>
+
+        <div class="invoice-recipient-box">
+          <h3>RECIPIENT BILL DETAILS</h3>
+          <p><strong>Name:</strong> {{ recipient?.name }}</p>
+          <p><strong>Status:</strong> {{ recipient?.status }}</p>
+        </div>
+
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Shift</th>
+              <th>Quantity (Liters)</th>
+              <th>Rate (₹/L)</th>
+              <th>FAT / SNF</th>
+              <th>Total Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (bill of filteredBills(); track bill.id) {
+              <tr>
+                <td>{{ bill.billDate }}</td>
+                <td>{{ bill.shift }}</td>
+                <td>{{ bill.quantityLiters }} L</td>
+                <td>₹{{ bill.ratePerLiter }}</td>
+                <td>{{ bill.fatPercent ?? '-' }}% / {{ bill.snfPercent ?? '-' }}%</td>
+                <td>₹{{ bill.totalAmount }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2">TOTAL</td>
+              <td>{{ totalLiters().toFixed(1) }} L</td>
+              <td>Avg ₹{{ avgRate().toFixed(2) }}</td>
+              <td>-</td>
+              <td>₹{{ totalAmount().toFixed(2) }}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="invoice-footer">
+          <div class="signature-block">
+            <p>Authorized Signature</p>
+            <div class="sig-line"></div>
+          </div>
+          <p class="thank-you">Thank you for your business!</p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+}

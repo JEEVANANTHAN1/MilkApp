@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MilkRecipientService } from '../milk-recipient.service';
 import { MilkBillService } from '../../milk-bill/milk-bill.service';
 import { MilkBill } from '../../milk-bill/models/milk-bill.model';
+import { ExportBillModalComponent } from '../export-bill-modal/export-bill-modal.component';
 
 export type DeliveryType = 'both' | 'morning' | 'evening' | 'none';
 
@@ -36,7 +37,7 @@ function formatMonthLabel(key: string): string {
 @Component({
   selector: 'app-recipient-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ExportBillModalComponent],
   templateUrl: './recipient-detail.component.html',
   styleUrl: './recipient-detail.component.scss',
 })
@@ -49,6 +50,7 @@ export class RecipientDetailComponent implements OnInit {
   recipientId = signal<string>('');
   selectedMonth = signal<string>(currentMonthKey());
   selectedDateIso = signal<string | null>(todayIso());
+  isExportModalOpen = signal<boolean>(false);
 
   protected readonly formatMonthLabel = formatMonthLabel;
 
@@ -188,5 +190,13 @@ export class RecipientDetailComponent implements OnInit {
     if (r) {
       await this.recipientService.toggleStatus(r.id);
     }
+  }
+
+  openExportModal(): void {
+    this.isExportModalOpen.set(true);
+  }
+
+  closeExportModal(): void {
+    this.isExportModalOpen.set(false);
   }
 }
