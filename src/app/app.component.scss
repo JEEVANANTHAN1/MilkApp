@@ -5,6 +5,33 @@
   background: var(--color-background);
 }
 
+/* ── Top Global API Loading Bar ──────────────────────────────── */
+.api-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 10000;
+  background: rgba(14, 59, 126, 0.15);
+  overflow: hidden;
+  pointer-events: none;
+
+  &__fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #0e3b7e 0%, #3b82f6 50%, #60a5fa 100%);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+    animation: apiBarIndeterminate 1.2s infinite ease-in-out;
+  }
+}
+
+@keyframes apiBarIndeterminate {
+  0%   { transform: translateX(-100%) scaleX(0.2); }
+  50%  { transform: translateX(-10%) scaleX(0.6); }
+  100% { transform: translateX(100%) scaleX(0.2); }
+}
+
 /* ── Top App Bar ─────────────────────────────────────────── */
 .top-bar {
   position: sticky;
@@ -40,6 +67,20 @@
     letter-spacing: -0.02em;
     color: var(--color-primary);
   }
+
+  &__api-spinner {
+    width: 14px;
+    height: 14px;
+    margin-left: 6px;
+    border: 2px solid rgba(14, 59, 126, 0.2);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: apiSpinnerRotate 0.6s linear infinite;
+  }
+}
+
+@keyframes apiSpinnerRotate {
+  to { transform: rotate(360deg); }
 }
 
 /* ── Icon button ────────────────────────────────────────── */

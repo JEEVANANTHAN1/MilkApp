@@ -1,4 +1,11 @@
 <div class="app-shell">
+  <!-- Top API Progress Bar for all in-flight HTTP requests -->
+  @if (loadingService.isLoadingApi()) {
+    <div class="api-loading-bar" aria-label="Loading API data">
+      <div class="api-loading-bar__fill"></div>
+    </div>
+  }
+
   @if (!isLoginPage()) {
     @if (milkBillService.isLoading() || milkBillService.errorMessage()) {
       <app-initial-loading-screen />
@@ -9,6 +16,9 @@
       <div class="top-bar__brand">
         <img src="logo.jpg" alt="Milk Flow Logo" class="top-bar__logo" />
         <span class="top-bar__title">Milk Flow</span>
+        @if (loadingService.isLoadingApi()) {
+          <div class="top-bar__api-spinner" title="Syncing..." aria-label="Syncing data"></div>
+        }
       </div>
       <button class="icon-btn" aria-label="Logout" (click)="logout()" title="Logout">
         <span class="material-symbols-outlined">logout</span>

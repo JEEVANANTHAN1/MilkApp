@@ -5,6 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { InitialLoadingScreenComponent } from './core/components/initial-loading-screen/initial-loading-screen.component';
 import { MilkBillService } from './features/milk-bill/milk-bill.service';
 import { AuthService } from './features/auth/auth.service';
+import { LoadingService } from './core/services/loading.service';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ export class AppComponent {
   title = 'Milk Flow';
   protected readonly milkBillService = inject(MilkBillService);
   protected readonly auth = inject(AuthService);
+  protected readonly loadingService = inject(LoadingService);
   private readonly router = inject(Router);
 
   /** True when the current route is the login page — hides the shell chrome */
