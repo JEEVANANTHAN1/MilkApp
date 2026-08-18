@@ -134,3 +134,22 @@ button, input, textarea, select {
   background: var(--color-primary-fixed);
   color: var(--color-primary);
 }
+
+/* ── Skeleton Loader Shimmer Utility ───────────────────────── */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-container) 25%,
+    var(--color-surface-container-high) 50%,
+    var(--color-surface-container) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonLoading 1.5s infinite linear;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes skeletonLoading {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+

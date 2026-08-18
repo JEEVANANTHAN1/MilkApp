@@ -1,24 +1,47 @@
-<div class="loading-overlay" [class.loading-overlay--error]="milkBillService.errorMessage()">
+<div class="loading-overlay"
+     [class.loading-overlay--error]="milkBillService.errorMessage()"
+     [class.loading-overlay--leaving]="isExiting()">
   <div class="loading-container">
 
-    <!-- App Logo with subtle pulse ring -->
-    <div class="logo-wrapper">
-      <div class="pulse-ring"></div>
-      <div class="pulse-ring pulse-ring--delayed"></div>
-      <img src="logo.jpg" alt="Milk Flow Logo" class="app-logo" />
+    <!-- App Brand & Glowing Badge -->
+    <div class="brand-badge">
+      <div class="logo-wrapper">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring pulse-ring--delayed"></div>
+        <img src="logo.jpg" alt="Milk Flow Logo" class="app-logo" />
+      </div>
+      <h1 class="brand-title">Milk Flow</h1>
+      <p class="brand-subtitle">Smart Dairy Management</p>
     </div>
 
     @if (milkBillService.errorMessage(); as errorMsg) {
-    <div class="error-card">
-      <p class="error-card__msg">{{ errorMsg }}</p>
-      <div class="error-card__actions">
-        <button class="btn btn--primary" (click)="retry()">Retry</button>
-        <button class="btn btn--secondary" (click)="continueOffline()">Offline</button>
+      <div class="error-card">
+        <div class="error-card__icon">
+          <span class="material-symbols-outlined">wifi_off</span>
+        </div>
+        <p class="error-card__msg">{{ errorMsg }}</p>
+        <div class="error-card__actions">
+          <button class="btn btn--primary" (click)="retry()">Retry Connection</button>
+          <button class="btn btn--secondary" (click)="continueOffline()">Use Offline Mode</button>
+        </div>
       </div>
-    </div>
     } @else {
-    <!-- Minimal Spinner -->
-    <!-- <div class="spinner" aria-label="Loading"></div> -->
+      <!-- Progress Bar & Status Section -->
+      <div class="progress-section">
+        <div class="progress-header">
+          <span class="status-text">{{ milkBillService.statusMessage() }}</span>
+          <span class="percent-badge">{{ progressPercent() }}%</span>
+        </div>
+
+        <div class="progress-track" aria-label="Loading progress">
+          <div class="progress-fill" [style.width.%]="progressPercent()"></div>
+        </div>
+
+        <!-- Glowing Minimal Spinner -->
+        <div class="spinner-wrap">
+          <div class="spinner" aria-label="Loading indicator"></div>
+        </div>
+      </div>
     }
 
   </div>
