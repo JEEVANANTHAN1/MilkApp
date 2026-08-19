@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -27,6 +27,22 @@ export class RecipientListComponent {
   exportRecipient = signal<MilkRecipient | null>(null);
   isExportModalOpen = signal<boolean>(false);
 
+  activeMenuId = signal<string | null>(null);
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.closeMenu();
+  }
+
+  toggleMenu(id: string, event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    this.activeMenuId.update((current) => (current === id ? null : id));
+  }
+
+  closeMenu(): void {
+    this.activeMenuId.set(null);
+  }
+
   filteredRecipients = computed(() => {
     const query = this.searchQuery().trim().toLowerCase();
     const list = this.recipientService.allRecipients();
@@ -44,6 +60,7 @@ export class RecipientListComponent {
 
   startEdit(recipient: MilkRecipient, event?: MouseEvent): void {
     if (event) event.stopPropagation();
+    this.closeMenu();
     this.editingId.set(recipient.id);
     this.nameInput.set(recipient.name);
     this.statusInput.set(recipient.status);
@@ -88,11 +105,13 @@ export class RecipientListComponent {
 
   async toggleStatus(id: string, event?: MouseEvent): Promise<void> {
     if (event) event.stopPropagation();
+    this.closeMenu();
     await this.recipientService.toggleStatus(id);
   }
 
   async deleteRecipient(id: string, name: string, event?: MouseEvent): Promise<void> {
     if (event) event.stopPropagation();
+    this.closeMenu();
     if (confirm(`Are you sure you want to delete recipient "${name}"?`)) {
       await this.recipientService.deleteRecipient(id);
     }
@@ -100,6 +119,7 @@ export class RecipientListComponent {
 
   openExportModal(recipient: MilkRecipient, event?: MouseEvent): void {
     if (event) event.stopPropagation();
+    this.closeMenu();
     this.exportRecipient.set(recipient);
     this.isExportModalOpen.set(true);
   }

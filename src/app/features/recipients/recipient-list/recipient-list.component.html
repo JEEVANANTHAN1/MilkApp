@@ -124,31 +124,68 @@
             </div>
           </div>
 
-          <div class="recipient-card__actions">
-            <!-- Export Bill button -->
+          <div class="recipient-card__menu-wrapper" (click)="$event.stopPropagation()">
+            <!-- Kebab Menu Trigger Button -->
             <button
-              class="action-btn action-btn--export"
-              title="Export Bill Statement"
-              (click)="openExportModal(recipient, $event)">
-              <span class="material-symbols-outlined">receipt_long</span>
+              type="button"
+              class="action-btn menu-trigger-btn"
+              [class.menu-trigger-btn--active]="activeMenuId() === recipient.id"
+              title="Actions"
+              aria-label="Actions"
+              aria-haspopup="true"
+              [attr.aria-expanded]="activeMenuId() === recipient.id"
+              (click)="toggleMenu(recipient.id, $event)">
+              <span class="material-symbols-outlined">more_vert</span>
             </button>
-            <!-- Toggle Status button -->
-            <button
-              class="action-btn"
-              [title]="recipient.status === 'Active' ? 'Deactivate Recipient' : 'Activate Recipient'"
-              (click)="toggleStatus(recipient.id, $event)">
-              <span class="material-symbols-outlined">
-                {{ recipient.status === 'Active' ? 'toggle_on' : 'toggle_off' }}
-              </span>
-            </button>
-            <!-- Edit button -->
-            <button class="action-btn" title="Edit Recipient" (click)="startEdit(recipient, $event)">
-              <span class="material-symbols-outlined">edit</span>
-            </button>
-            <!-- Delete button -->
-            <button class="action-btn action-btn--danger" title="Delete Recipient" (click)="deleteRecipient(recipient.id, recipient.name, $event)">
-              <span class="material-symbols-outlined">delete</span>
-            </button>
+
+            <!-- Dropdown Menu -->
+            @if (activeMenuId() === recipient.id) {
+              <div class="dropdown-menu" role="menu">
+                <!-- Export Bill -->
+                <button
+                  type="button"
+                  class="dropdown-menu__item"
+                  role="menuitem"
+                  (click)="openExportModal(recipient, $event)">
+                  <span class="material-symbols-outlined dropdown-menu__icon">receipt_long</span>
+                  <span>Export Bill</span>
+                </button>
+
+                <!-- Toggle Status -->
+                <button
+                  type="button"
+                  class="dropdown-menu__item"
+                  role="menuitem"
+                  (click)="toggleStatus(recipient.id, $event)">
+                  <span class="material-symbols-outlined dropdown-menu__icon">
+                    {{ recipient.status === 'Active' ? 'toggle_off' : 'toggle_on' }}
+                  </span>
+                  <span>{{ recipient.status === 'Active' ? 'Mark Inactive' : 'Mark Active' }}</span>
+                </button>
+
+                <!-- Edit Recipient -->
+                <button
+                  type="button"
+                  class="dropdown-menu__item"
+                  role="menuitem"
+                  (click)="startEdit(recipient, $event)">
+                  <span class="material-symbols-outlined dropdown-menu__icon">edit</span>
+                  <span>Edit</span>
+                </button>
+
+                <div class="dropdown-menu__divider"></div>
+
+                <!-- Delete Recipient -->
+                <button
+                  type="button"
+                  class="dropdown-menu__item dropdown-menu__item--danger"
+                  role="menuitem"
+                  (click)="deleteRecipient(recipient.id, recipient.name, $event)">
+                  <span class="material-symbols-outlined dropdown-menu__icon">delete</span>
+                  <span>Delete</span>
+                </button>
+              </div>
+            }
           </div>
         </article>
       }
