@@ -6,7 +6,7 @@
       <header class="modal-header no-print">
         <div class="header-title">
           <span class="material-symbols-outlined header-icon">receipt_long</span>
-          <div>
+          <div class="header-text">
             <h3 class="title">Export Milk Bill</h3>
             <p class="subtitle">{{ recipient?.name || 'Recipient Statement' }}</p>
           </div>
@@ -59,7 +59,7 @@
             class="pill-btn"
             [class.pill-btn--active]="selectedPreset() === 'custom'"
             (click)="setPreset('custom')">
-            Custom Range
+            Custom
           </button>
         </div>
 
@@ -122,7 +122,7 @@
             </div>
           </div>
 
-          <!-- Phone Number Input -->
+          <!-- Phone Number Input Group -->
           <div class="whatsapp-input-group">
             <div class="phone-input-wrap" [class.phone-input-wrap--error]="phoneError()">
               <div class="country-prefix">
@@ -140,7 +140,7 @@
                 id="whatsapp_phone_input"
                 type="tel"
                 class="phone-input"
-                placeholder="Enter 10-digit WhatsApp number (e.g. 9876543210)"
+                placeholder="10-digit WhatsApp number (e.g. 9876543210)"
                 [ngModel]="whatsappPhone()"
                 (ngModelChange)="whatsappPhone.set($event); phoneError.set(null)"
                 (keydown.enter)="sendViaWhatsApp()"
@@ -222,112 +222,117 @@
         </button>
       </section>
 
-      <!-- Itemized Statement Preview Table (Also captured as Bill Image) -->
+      <!-- Itemized Statement Preview Table (Captured as Bill Image) -->
       <section class="preview-section no-print">
         <div class="preview-header">
           <h4>Statement Preview ({{ filteredBills().length }} records)</h4>
-          <span class="preview-subtitle">This format will be exported as the bill image</span>
+          <span class="preview-subtitle">Rendered bill image format for download and sharing</span>
         </div>
 
         @if (filteredBills().length === 0) {
           <p class="empty-state">No milk delivery records found for recipient in the selected date range.</p>
         } @else {
-          <!-- The container element captured by html2canvas -->
-          <div class="bill-image-card" #billReceiptRef id="billImageReceipt">
-            <!-- Receipt Header -->
-            <div class="bill-image-card__header">
-              <div class="bill-image-card__brand">
-                <span class="bill-image-card__logo">🥛</span>
-                <div>
-                  <h3 class="bill-image-card__title">AGRO-FRESH DAIRY</h3>
-                  <p class="bill-image-card__tagline">Milk Delivery Bill Statement</p>
+          <!-- Responsive outer scroll wrapper for mobile screens -->
+          <div class="bill-card-scroll-wrap">
+            <!-- The exact element captured by html2canvas -->
+            <div class="bill-image-card" #billReceiptRef id="billImageReceipt">
+              <!-- Receipt Header -->
+              <div class="bill-image-card__header">
+                <div class="bill-image-card__brand">
+                  <span class="bill-image-card__logo">🥛</span>
+                  <div>
+                    <h3 class="bill-image-card__title">AGRO-FRESH DAIRY</h3>
+                    <p class="bill-image-card__tagline">Milk Delivery Bill Statement</p>
+                  </div>
+                </div>
+                <div class="bill-image-card__meta">
+                  <div class="meta-row">
+                    <span class="meta-label">Recipient:</span>
+                    <span class="meta-value recipient-name">{{ recipient?.name }}</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="meta-label">Period:</span>
+                    <span class="meta-value">{{ startDate() || 'Start' }} to {{ endDate() || 'Today' }}</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="meta-label">Date:</span>
+                    <span class="meta-value">{{ endDate() || 'Current' }}</span>
+                  </div>
                 </div>
               </div>
-              <div class="bill-image-card__meta">
-                <div class="meta-row">
-                  <span class="meta-label">Recipient:</span>
-                  <span class="meta-value recipient-name">{{ recipient?.name }}</span>
-                </div>
-                <div class="meta-row">
-                  <span class="meta-label">Period:</span>
-                  <span class="meta-value">{{ startDate() || 'Start' }} to {{ endDate() || 'Today' }}</span>
-                </div>
-                <div class="meta-row">
-                  <span class="meta-label">Date:</span>
-                  <span class="meta-value">{{ endDate() || 'Current' }}</span>
-                </div>
-              </div>
-            </div>
 
-            <!-- Receipt Summary Stats Grid -->
-            <div class="bill-image-card__stats">
-              <div class="stat-box">
-                <span class="stat-box__label">Total Volume</span>
-                <span class="stat-box__val">{{ totalLiters().toFixed(1) }} L</span>
+              <!-- Receipt Summary Stats Grid -->
+              <div class="bill-image-card__stats">
+                <div class="stat-box">
+                  <span class="stat-box__label">Total Volume</span>
+                  <span class="stat-box__val">{{ totalLiters().toFixed(1) }} L</span>
+                </div>
+                <div class="stat-box stat-box--highlight">
+                  <span class="stat-box__label">Total Amount</span>
+                  <span class="stat-box__val">₹{{ totalAmount().toFixed(2) }}</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-box__label">Avg Rate</span>
+                  <span class="stat-box__val">₹{{ avgRate().toFixed(2) }}/L</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-box__label">Deliveries</span>
+                  <span class="stat-box__val">{{ deliveryDaysCount() }} Days</span>
+                </div>
               </div>
-              <div class="stat-box stat-box--highlight">
-                <span class="stat-box__label">Total Amount</span>
-                <span class="stat-box__val">₹{{ totalAmount().toFixed(2) }}</span>
-              </div>
-              <div class="stat-box">
-                <span class="stat-box__label">Avg Rate</span>
-                <span class="stat-box__val">₹{{ avgRate().toFixed(2) }}/L</span>
-              </div>
-              <div class="stat-box">
-                <span class="stat-box__label">Deliveries</span>
-                <span class="stat-box__val">{{ deliveryDaysCount() }} Days</span>
-              </div>
-            </div>
 
-            <!-- Receipt HTML Table -->
-            <table class="bill-image-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Shift</th>
-                  <th class="text-right">Qty (L)</th>
-                  <th class="text-right">Rate (₹/L)</th>
-                  <th>FAT / SNF</th>
-                  <th class="text-right">Amount (₹)</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (bill of filteredBills(); track bill.id) {
-                  <tr>
-                    <td>{{ bill.billDate }}</td>
-                    <td>
-                      <span class="shift-tag" [class.shift-tag--morning]="bill.shift === 'Morning'" [class.shift-tag--evening]="bill.shift === 'Evening'">
-                        {{ bill.shift === 'Morning' ? '🌅 Morning' : '🌆 Evening' }}
-                      </span>
-                    </td>
-                    <td class="text-right font-semibold">{{ bill.quantityLiters }} L</td>
-                    <td class="text-right">₹{{ bill.ratePerLiter }}</td>
-                    <td>
-                      @if (bill.fatPercent || bill.snfPercent) {
-                        <span>{{ bill.fatPercent ?? '-' }}% / {{ bill.snfPercent ?? '-' }}%</span>
-                      } @else {
-                        <span class="muted">-</span>
-                      }
-                    </td>
-                    <td class="text-right font-bold amount-col">₹{{ bill.totalAmount }}</td>
-                  </tr>
-                }
-              </tbody>
-              <tfoot>
-                <tr class="total-row">
-                  <td colspan="2"><strong>TOTAL SUMMARY</strong></td>
-                  <td class="text-right"><strong>{{ totalLiters().toFixed(1) }} L</strong></td>
-                  <td class="text-right"><strong>₹{{ avgRate().toFixed(2) }}</strong></td>
-                  <td>-</td>
-                  <td class="text-right total-amount-cell"><strong>₹{{ totalAmount().toFixed(2) }}</strong></td>
-                </tr>
-              </tfoot>
-            </table>
+              <!-- Receipt HTML Table -->
+              <div class="bill-table-container">
+                <table class="bill-image-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Shift</th>
+                      <th class="text-right">Qty (L)</th>
+                      <th class="text-right">Rate (₹/L)</th>
+                      <th>FAT / SNF</th>
+                      <th class="text-right">Amount (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (bill of filteredBills(); track bill.id) {
+                      <tr>
+                        <td class="date-cell">{{ bill.billDate }}</td>
+                        <td>
+                          <span class="shift-tag" [class.shift-tag--morning]="bill.shift === 'Morning'" [class.shift-tag--evening]="bill.shift === 'Evening'">
+                            {{ bill.shift === 'Morning' ? '🌅 Morning' : '🌆 Evening' }}
+                          </span>
+                        </td>
+                        <td class="text-right font-semibold">{{ bill.quantityLiters }} L</td>
+                        <td class="text-right">₹{{ bill.ratePerLiter }}</td>
+                        <td>
+                          @if (bill.fatPercent || bill.snfPercent) {
+                            <span>{{ bill.fatPercent ?? '-' }}% / {{ bill.snfPercent ?? '-' }}%</span>
+                          } @else {
+                            <span class="muted">-</span>
+                          }
+                        </td>
+                        <td class="text-right font-bold amount-col">₹{{ bill.totalAmount }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                  <tfoot>
+                    <tr class="total-row">
+                      <td colspan="2"><strong>TOTAL SUMMARY</strong></td>
+                      <td class="text-right"><strong>{{ totalLiters().toFixed(1) }} L</strong></td>
+                      <td class="text-right"><strong>₹{{ avgRate().toFixed(2) }}</strong></td>
+                      <td>-</td>
+                      <td class="text-right total-amount-cell"><strong>₹{{ totalAmount().toFixed(2) }}</strong></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
 
-            <!-- Receipt Footer -->
-            <div class="bill-image-card__footer">
-              <span class="thank-msg">Thank you for your business! 🙏</span>
-              <span class="watermark">Generated via MilkApp</span>
+              <!-- Receipt Footer -->
+              <div class="bill-image-card__footer">
+                <span class="thank-msg">Thank you for your business! 🙏</span>
+                <span class="watermark">Generated via MilkApp</span>
+              </div>
             </div>
           </div>
         }
