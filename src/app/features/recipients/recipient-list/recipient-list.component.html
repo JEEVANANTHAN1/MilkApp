@@ -140,7 +140,7 @@
 
             <!-- Dropdown Menu -->
             @if (activeMenuId() === recipient.id) {
-              <div class="dropdown-menu" role="menu">
+              <div class="dropdown-menu" [class.dropdown-menu--up]="openUpward()" role="menu">
                 <!-- Export Bill -->
                 <button
                   type="button"

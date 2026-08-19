@@ -28,6 +28,7 @@ export class RecipientListComponent {
   isExportModalOpen = signal<boolean>(false);
 
   activeMenuId = signal<string | null>(null);
+  openUpward = signal<boolean>(false);
 
   @HostListener('document:click')
   onDocumentClick(): void {
@@ -35,7 +36,16 @@ export class RecipientListComponent {
   }
 
   toggleMenu(id: string, event?: MouseEvent): void {
-    if (event) event.stopPropagation();
+    if (event) {
+      event.stopPropagation();
+      const target = event.currentTarget as HTMLElement | null;
+      if (target) {
+        const rect = target.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        // If space below is less than 240px (menu height + nav bar), flip upward
+        this.openUpward.set(spaceBelow < 240);
+      }
+    }
     this.activeMenuId.update((current) => (current === id ? null : id));
   }
 
