@@ -20,7 +20,7 @@
           <div class="top-bar__api-spinner" title="Syncing..." aria-label="Syncing data"></div>
         }
       </div>
-      <button class="icon-btn" aria-label="Logout" (click)="logout()" title="Logout">
+      <button class="icon-btn" aria-label="Logout" (click)="openLogoutConfirm()" title="Logout">
         <span class="material-symbols-outlined">logout</span>
       </button>
     </header>
@@ -56,4 +56,29 @@
       </a>
     </nav>
   }
+
+  <!-- ── Logout Confirmation Modal ──────────────────────────── -->
+  @if (showLogoutConfirm()) {
+    <div class="modal-overlay" (click)="cancelLogout()">
+      <div class="confirm-modal-card" (click)="$event.stopPropagation()">
+        <div class="confirm-modal-card__icon-wrap">
+          <span class="material-symbols-outlined">logout</span>
+        </div>
+        <h3 class="confirm-modal-card__title">Log Out?</h3>
+        <p class="confirm-modal-card__message">
+          Are you sure you want to log out of <strong>Milk Flow</strong>?
+        </p>
+        <div class="confirm-modal-card__actions">
+          <button type="button" class="btn btn--secondary" (click)="cancelLogout()">
+            Cancel
+          </button>
+          <button type="button" class="btn btn--danger" (click)="confirmLogout()">
+            <span class="material-symbols-outlined">logout</span>
+            Log Out
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>
+

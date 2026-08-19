@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter, map, startWith } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -21,6 +21,8 @@ export class AppComponent {
   protected readonly loadingService = inject(LoadingService);
   private readonly router = inject(Router);
 
+  showLogoutConfirm = signal<boolean>(false);
+
   /** True when the current route is the login page — hides the shell chrome */
   protected readonly isLoginPage = toSignal(
     this.router.events.pipe(
@@ -31,7 +33,17 @@ export class AppComponent {
     { initialValue: false }
   );
 
-  protected logout(): void {
+  protected openLogoutConfirm(): void {
+    this.showLogoutConfirm.set(true);
+  }
+
+  protected cancelLogout(): void {
+    this.showLogoutConfirm.set(false);
+  }
+
+  protected confirmLogout(): void {
+    this.showLogoutConfirm.set(false);
     this.auth.logout();
   }
 }
+

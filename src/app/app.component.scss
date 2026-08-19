@@ -186,3 +186,131 @@
     letter-spacing: 0.04em;
   }
 }
+
+/* ── Modal Overlay & Confirmation Dialog ───────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 27, 54, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  animation: fadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.confirm-modal-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-xl);
+  padding: 24px 20px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: scaleUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &__icon-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-pill);
+    background: var(--color-error-container);
+    color: var(--color-error);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+
+    .material-symbols-outlined {
+      font-size: 26px;
+    }
+  }
+
+  &__title {
+    margin: 0 0 6px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--color-on-surface);
+  }
+
+  &__message {
+    margin: 0 0 20px;
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant);
+    line-height: 1.4;
+
+    strong {
+      color: var(--color-primary);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+}
+
+.btn {
+  flex: 1;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.875rem;
+  font-weight: 700;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background-color 0.12s ease;
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &--secondary {
+    background: var(--color-surface-container-high);
+    color: var(--color-on-surface);
+
+    &:hover {
+      background: var(--color-surface-container-highest);
+    }
+  }
+
+  &--danger {
+    background: var(--color-error);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(186, 26, 26, 0.25);
+
+    &:hover {
+      background: #a51414;
+    }
+
+    .material-symbols-outlined {
+      font-size: 18px;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
